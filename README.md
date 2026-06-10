@@ -194,7 +194,78 @@ git push -u origin main
 GitHub Actions will run `CI`, which validates the template, lints, typechecks,
 builds `dist/`, and runs the placeholder test.
 
-### 5. Configure GitHub Environments
+### 5. Create Azure Subscription And Deployment Identity
+
+Create or select the Azure subscription before configuring GitHub.
+
+Azure subscription setup:
+
+1. Sign in to the [Azure portal](https://portal.azure.com/).
+2. Create a subscription in the Microsoft Entra tenant that will own the
+   Azure resources.
+3. Confirm the subscription owner can create resource groups and register
+   resource providers.
+4. Keep the subscription ID; it becomes `AZURE_SUBSCRIPTION_ID`.
+
+Local Azure CLI check:
+
+```bash
+az login
+az account list --output table
+az account set --subscription "<subscription-id>"
+az account show --output table
+```
+
+Register the providers used by this template:
+
+```bash
+az provider register --namespace Microsoft.Web
+az provider register --namespace Microsoft.DocumentDB
+az provider register --namespace Microsoft.OperationalInsights
+az provider register --namespace Microsoft.Insights
+az provider register --namespace Microsoft.ManagedIdentity
+```
+
+Create one Microsoft Entra app registration for GitHub Actions deployments.
+Grant its service principal permission to create and update resources in the
+subscription.
+
+```bash
+az ad app create --display-name "<new-repo>-github-actions"
+az ad sp create --id "<application-client-id>"
+az role assignment create \
+  --assignee "<application-client-id>" \
+  --role Contributor \
+  --scope "/subscriptions/<subscription-id>"
+```
+
+Add federated credentials to the app registration for both GitHub environments:
+
+```text
+issuer: https://token.actions.githubusercontent.com
+audience: api://AzureADTokenExchange
+subject: repo:<owner>/<new-repo>:environment:acceptance
+subject: repo:<owner>/<new-repo>:environment:production
+```
+
+The app registration values become:
+
+| GitHub secret | Azure value |
+| --- | --- |
+| `AZURE_CLIENT_ID` | Application/client ID |
+| `AZURE_TENANT_ID` | Directory/tenant ID |
+| `AZURE_SUBSCRIPTION_ID` | Subscription ID |
+
+The workflow creates project resources later. Do not manually create the
+resource group, Static Web App, Cosmos account, Log Analytics workspace,
+Application Insights resource, or managed identity unless debugging
+provisioning.
+
+The CIAM / Entra External ID tenant and app registration are separate identity
+prerequisites. Create them before provisioning and keep their tenant/client
+values for GitHub environment secrets.
+
+### 6. Configure GitHub Environments
 
 Create two GitHub environments:
 
@@ -223,7 +294,7 @@ The Azure identity behind `AZURE_CLIENT_ID` must have a federated credential for
 the GitHub repository and permission to create/update the target resource
 groups.
 
-### 6. Provision Azure
+### 7. Provision Azure
 
 In GitHub Actions, run `Provision Azure` for `acceptance` first. The workflow
 creates:
@@ -238,7 +309,7 @@ creates:
 
 After acceptance succeeds, run the same workflow for `production`.
 
-### 7. Deploy
+### 8. Deploy
 
 In GitHub Actions, run `Deploy Static Web App` for `acceptance`.
 
@@ -248,7 +319,7 @@ prebuilt artifact with platform builds disabled.
 
 After acceptance is verified, run `Deploy Static Web App` for `production`.
 
-### 8. Continue Development
+### 9. Continue Development
 
 - Replace placeholder content in `html/index.html`.
 - Add styles in `css/site.css`.

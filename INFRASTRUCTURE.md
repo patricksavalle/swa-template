@@ -15,6 +15,7 @@ Azure tenant / subscription
     ├── Azure Static Web App: swa-<app-name>-<env-suffix>
     │   ├── Static artifact: dist/
     │   ├── Optional prebuilt TypeScript API artifact when `SWA_API_LOCATION` is set
+    │   │   └── Health and OpenAPI endpoints
     │   └── App settings seeded by GitHub workflows
     ├── Cosmos DB for NoSQL: cosmos-<app-name>-<env-suffix>
     │   └── SQL database: app
@@ -258,7 +259,7 @@ Each environment stores the values used by workflows for that environment.
 | Variable | Purpose |
 | --- | --- |
 | `APP_NAME` | Overrides the repository-derived Azure name prefix |
-| `SWA_API_LOCATION` | Optional API source path. Leave unset for static-only projects; set to `api` when deploying the included TypeScript Azure Functions API. |
+| `SWA_API_LOCATION` | Optional API source path. Leave unset for static-only projects; set to `api` when deploying the included TypeScript Azure Functions API and OpenAPI contract endpoint. |
 
 No Key Vault is used in this template. Seed secrets live in GitHub
 environments and are written into Azure Static Web App application settings by
@@ -414,8 +415,8 @@ Run these checks after provisioning or changing infrastructure.
    onboarding.
 4. Dashboards and SLO thresholds are not included until the instantiated
    project defines ownership and thresholds.
-5. The optional `api/` boundary includes a TypeScript health endpoint, but it is
-   not deployed unless `SWA_API_LOCATION=api` is set.
+5. The optional `api/` boundary includes TypeScript health and OpenAPI
+   endpoints, but it is not deployed unless `SWA_API_LOCATION=api` is set.
 
 ---
 

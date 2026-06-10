@@ -57,7 +57,7 @@ jobs:
           path: |
             api/host.json
             api/package.json
-            api/health/function.json
+            api/*/function.json
             api/dist/**
           if-no-files-found: error
           retention-days: 30

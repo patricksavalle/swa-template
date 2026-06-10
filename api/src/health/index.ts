@@ -1,3 +1,5 @@
+import type { HealthResponse } from "../openapi/document.js";
+
 const SERVICE_NAME = "swa-template-api";
 
 interface HttpRequest {
@@ -6,13 +8,6 @@ interface HttpRequest {
 
 interface InvocationContext {
   readonly log: (...messages: unknown[]) => void;
-}
-
-interface HealthResponse {
-  readonly ok: true;
-  readonly service: string;
-  readonly environment: string;
-  readonly timestamp: string;
 }
 
 interface HttpResponse {

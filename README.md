@@ -18,6 +18,7 @@ swa-template/
 ├── infrastructure/
 ├── packages/
 ├── scripts/
+├── skills/
 └── tests/
 ```
 
@@ -31,14 +32,17 @@ swa-template/
 - `tests/` holds cross-boundary tests that do not belong to one package.
 - `docs/` holds architecture, infrastructure, and operational decisions.
 - `scripts/` holds validation, build, release, and local automation.
+- `skills/` holds generic agent skills that can be installed into a target
+  agent runtime or used directly by compatible agents.
 
 ## Start Here
 
 1. Choose the frontend and API runtimes.
 2. Replace placeholder README files in `app/`, `api/`, and `packages/`.
 3. Fill in `docs/infrastructure.md` with the target cloud resources.
-4. Add real build and test commands to `package.json`.
-5. Wire `.github/workflows/deploy-static-web-app.yml` to the chosen hosting
+4. Review `docs/skills.md` and keep only the skills that fit the project.
+5. Add real build and test commands to `package.json`.
+6. Wire `.github/workflows/deploy-static-web-app.yml` to the chosen hosting
    provider.
 
 ## CI/CD
@@ -50,5 +54,5 @@ run.
 
 ## Agent Guidance
 
-This project includes `AGENTS.md`, adapted from the L-GEVITY discipline, to
-keep agent work cautious, minimal, and verification-driven.
+This project includes `AGENTS.md` and a generic skill library to keep agent
+work cautious, minimal, and verification-driven.

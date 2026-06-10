@@ -41,23 +41,141 @@ swa-template/
 
 ## Start Here
 
-1. Edit 11ty pages in `html/`.
-2. Replace placeholder files in `css/`, `img/`, `api/`, and `ts/`.
-3. Review `INFRASTRUCTURE.md` before changing Azure resources or project
-   structure.
-4. Review `docs/skills.md` and keep only the skills that fit the project.
-5. Keep or tighten the generic lint rules in `eslint.architecture.mjs`.
-6. Wire `.github/workflows/deploy-static-web-app.yml` to the chosen hosting
-   provider.
+Use this sequence for a new project based on the template.
+
+### 1. Clone And Rename
+
+```bash
+git clone https://github.com/patricksavalle/swa-template.git <new-repo>
+cd <new-repo>
+git remote set-url origin https://github.com/<owner>/<new-repo>.git
+npm pkg set name="<new-repo>"
+```
+
+Also update the README title and any visible placeholder copy before the first
+project commit.
+
+### 2. Verify Locally
+
+```bash
+npm ci
+npm run ci
+```
+
+For local development:
+
+```bash
+npm run dev
+```
+
+The local server renders 11ty pages from `html/`, copies static assets from
+`css/` and `img/`, and compiles TypeScript from `ts/`.
+
+### 3. Set Project Decisions
+
+Before feature work, review:
+
+- `docs/decisions/0001-template-boundaries.md`
+- `docs/decisions/0002-stack-baseline.md`
+- `docs/architecture.md`
+- `docs/skills.md`
+- `INFRASTRUCTURE.md`
+
+Keep the default stack unless the project records a new ADR. Add app code in
+`html/`, `css/`, `img/`, `api/`, and `ts/`. Keep or tighten the generic
+architecture rules in `eslint.architecture.mjs`.
+
+### 4. Push The New Repository
+
+```bash
+git push -u origin main
+```
+
+GitHub Actions will run `CI`, which validates the template, lints, typechecks,
+builds `dist/`, and runs the placeholder test.
+
+### 5. Configure GitHub Environments
+
+Create two GitHub environments:
+
+- `acceptance`
+- `production`
+
+Add these secrets to each environment:
+
+| Secret | Purpose |
+| --- | --- |
+| `AZURE_CLIENT_ID` | Federated Azure deployment identity client ID |
+| `AZURE_TENANT_ID` | Azure tenant ID for OIDC login |
+| `AZURE_SUBSCRIPTION_ID` | Azure subscription ID |
+| `CIAM_TENANT_ID` | External identity tenant ID |
+| `CIAM_TENANT_NAME` | External identity tenant name |
+| `CIAM_CLIENT_ID` | External identity app registration client ID |
+| `CIAM_CLIENT_SECRET` | External identity app registration client secret |
+
+Optional variable:
+
+| Variable | Purpose |
+| --- | --- |
+| `APP_NAME` | Overrides the repository-derived Azure resource name prefix |
+
+The Azure identity behind `AZURE_CLIENT_ID` must have a federated credential for
+the GitHub repository and permission to create/update the target resource
+groups.
+
+### 6. Provision Azure
+
+In GitHub Actions, run `Provision Azure` for `acceptance` first. The workflow
+creates:
+
+- resource group
+- Azure Static Web App
+- Cosmos DB for NoSQL
+- Log Analytics
+- Application Insights
+- user-assigned managed identity
+- Static Web App application settings
+
+After acceptance succeeds, run the same workflow for `production`.
+
+### 7. Deploy
+
+In GitHub Actions, run `Deploy Static Web App` for `acceptance`.
+
+The deploy workflow builds once in CI, downloads the immutable `dist/`
+artifact, reads the Static Web App deployment token from Azure, and uploads the
+prebuilt artifact with platform builds disabled.
+
+After acceptance is verified, run `Deploy Static Web App` for `production`.
+
+### 8. Continue Development
+
+- Replace placeholder content in `html/index.html`.
+- Add styles in `css/site.css`.
+- Add browser code under `ts/userinterface/`.
+- Add deterministic business rules under `ts/businesslogic/`.
+- Add adapters/config loaders under `ts/infrastructure/`.
+- Add Azure Functions endpoints under `api/` only when backend endpoints are
+  needed.
+- Replace `scripts/test-placeholder.mjs` with real tests once application
+  behavior exists.
 
 ## SWA Locations
 
-Default locations:
+Local SWA CLI locations:
 
 ```text
 app_location: .
 api_location: api
 output_location: dist
+```
+
+Deploy workflow locations:
+
+```text
+app_location: dist
+api_location: api
+output_location: ''
 ```
 
 The build renders `html/` with 11ty, copies `css/`, `img/`, and

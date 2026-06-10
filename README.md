@@ -1,4 +1,4 @@
-# swa-template
+# Azure Static Web Applicaton Template (for Agentic AI development)
 
 Generic starter template for an Azure Static Web App project with 11ty.
 

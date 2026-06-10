@@ -1,0 +1,17 @@
+{
+  "name": "swa-template",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generic Static Web App project template with CI/CD and infrastructure documentation placeholders.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "validate": "node scripts/validate-template.mjs",
+    "build": "node scripts/build-placeholder.mjs",
+    "test": "node scripts/test-placeholder.mjs",
+    "ci": "npm run validate && npm run build && npm test"
+  }
+}

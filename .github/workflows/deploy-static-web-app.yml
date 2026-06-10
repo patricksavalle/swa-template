@@ -1,0 +1,80 @@
+name: Deploy Static Web App
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build once
+        run: npm run ci
+
+      - name: Upload immutable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-web-artifact-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 30
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs:
+      - build
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Download immutable artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: static-web-artifact-${{ github.sha }}
+          path: dist/
+
+      - name: Authenticate to cloud
+        run: |
+          echo "Configure provider login here."
+          echo "Prefer OIDC/federated identity over long-lived secrets."
+
+      - name: Deploy artifact
+        run: |
+          echo "Deploy dist/ to the selected Static Web App host."
+          echo "Target environment: ${{ inputs.environment }}"
+
+      - name: Health check
+        run: |
+          echo "Replace this with a real health check before production use."

@@ -13,7 +13,13 @@ const requiredPaths = [
   "tsconfig.json",
   "docs/skills.md",
   "docs/infrastructure.md",
+  "docs/seed-secrets.md",
+  "infrastructure/main.bicep",
+  "infrastructure/environments/acceptance.bicepparam",
+  "infrastructure/environments/production.bicepparam",
   ".github/workflows/ci.yml",
+  ".github/workflows/provision-azure.yml",
+  ".github/workflows/seed-azure-app-settings.yml",
   ".agents/skills/architecture-guidelines/SKILL.md",
   "api/README.md",
   "css/README.md",
@@ -47,9 +53,6 @@ const expectedSkills = [
 ];
 
 const forbiddenTerms = [
-  ["L", "GEVITY"].join("-"),
-  ["l", "gevity"].join("-"),
-  ["l", "gevity", "skills"].join("-"),
   ["A", "L", "C", "H", "E", "M", "Y", ""].join("."),
   ["alchemy", "overview"].join("-")
 ];
@@ -90,7 +93,7 @@ async function collectTextFiles(directory) {
       continue;
     }
 
-    if (/\.(md|json|yml|yaml|mjs|js|ps1|sh|txt)$/i.test(entry.name) || entry.name === "AGENTS.md") {
+    if (/\.(md|json|yml|yaml|mjs|js|ps1|sh|txt|bicep|bicepparam)$/i.test(entry.name) || entry.name === "AGENTS.md") {
       files.push(fullPath);
     }
   }

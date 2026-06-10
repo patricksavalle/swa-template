@@ -6,10 +6,10 @@ on:
       environment:
         description: Target environment
         required: true
-        default: staging
+        default: acceptance
         type: choice
         options:
-          - staging
+          - acceptance
           - production
 
 permissions:
@@ -64,24 +64,56 @@ jobs:
     environment: ${{ inputs.environment }}
 
     steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Resolve Azure names
+        id: names
+        shell: bash
+        run: |
+          case "${{ inputs.environment }}" in
+            acceptance)
+              echo "resource_group=rg-l-gevity-acc" >> "$GITHUB_OUTPUT"
+              echo "swa_name=swa-l-gevity-acc" >> "$GITHUB_OUTPUT"
+              ;;
+            production)
+              echo "resource_group=rg-l-gevity-prd" >> "$GITHUB_OUTPUT"
+              echo "swa_name=swa-l-gevity-prd" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
       - name: Download immutable artifact
         uses: actions/download-artifact@v4
         with:
           name: static-web-artifact-${{ github.sha }}
           path: dist/
 
-      - name: Authenticate to cloud
+      - name: Read SWA deployment token
+        id: swa-token
+        shell: bash
         run: |
-          echo "Configure provider login here."
-          echo "Prefer OIDC/federated identity over long-lived secrets."
+          token="$(az staticwebapp secrets list \
+            --resource-group "${{ steps.names.outputs.resource_group }}" \
+            --name "${{ steps.names.outputs.swa_name }}" \
+            --query 'properties.apiKey' \
+            --output tsv)"
+          echo "::add-mask::$token"
+          echo "token=$token" >> "$GITHUB_OUTPUT"
 
       - name: Deploy artifact
-        run: |
-          echo "Deploy ${SWA_OUTPUT_LOCATION}/ to the selected Static Web App host."
-          echo "App location: ${SWA_APP_LOCATION}"
-          echo "API location: ${SWA_API_LOCATION}"
-          echo "Output location: ${SWA_OUTPUT_LOCATION}"
-          echo "Target environment: ${{ inputs.environment }}"
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ steps.swa-token.outputs.token }}
+          action: upload
+          app_location: dist
+          api_location: api
+          output_location: ''
+          skip_app_build: true
+          skip_api_build: true
 
       - name: Health check
         run: |

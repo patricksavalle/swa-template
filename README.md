@@ -66,9 +66,17 @@ The build copies `html/`, `css/`, and `img/` into `dist/`, then compiles
 ## CI/CD
 
 The default CI workflow validates the template, builds a placeholder artifact,
-checks ESLint and TypeScript, and uploads the `dist/` artifact. Deployment is
-intentionally a provider-neutral skeleton that names the SWA locations and uses
-OIDC where the selected provider supports it.
+checks ESLint and TypeScript, and uploads the `dist/` artifact. Deployment and
+provisioning are Azure-specific and use GitHub OIDC for Azure login.
+
+Azure workflows included:
+
+- `Provision Azure` creates acceptance or production resources.
+- `Seed Azure App Settings` reapplies CIAM and Cosmos seed settings.
+- `Deploy Static Web App` deploys the prebuilt `dist/` artifact.
+
+The template example uses `l-gevity` resource names. Rename
+`infrastructure/environments/*.bicepparam` after cloning for another project.
 
 ## Agent Guidance
 

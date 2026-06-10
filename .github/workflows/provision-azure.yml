@@ -1,0 +1,102 @@
+name: Provision Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: acceptance
+        type: choice
+        options:
+          - acceptance
+          - production
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: provision-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  provision:
+    name: Provision ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve Azure names
+        id: names
+        shell: bash
+        run: |
+          case "${{ inputs.environment }}" in
+            acceptance)
+              echo "resource_group=rg-l-gevity-acc" >> "$GITHUB_OUTPUT"
+              ;;
+            production)
+              echo "resource_group=rg-l-gevity-prd" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create resource group
+        shell: bash
+        run: |
+          az group create \
+            --name "${{ steps.names.outputs.resource_group }}" \
+            --location westeurope
+
+      - name: Provision resources
+        shell: bash
+        run: |
+          az deployment group create \
+            --resource-group "${{ steps.names.outputs.resource_group }}" \
+            --template-file infrastructure/main.bicep \
+            --parameters infrastructure/environments/${{ inputs.environment }}.bicepparam \
+            --parameters \
+              ciamTenantId="${{ secrets.CIAM_TENANT_ID }}" \
+              ciamTenantName="${{ secrets.CIAM_TENANT_NAME }}" \
+              ciamClientId="${{ secrets.CIAM_CLIENT_ID }}"
+
+      - name: Seed application settings
+        shell: bash
+        run: |
+          case "${{ inputs.environment }}" in
+            acceptance)
+              swa_name="swa-l-gevity-acc"
+              cosmos_name="cosmos-l-gevity-acc"
+              ;;
+            production)
+              swa_name="swa-l-gevity-prd"
+              cosmos_name="cosmos-l-gevity-prd"
+              ;;
+          esac
+
+          cosmos_connection_string="$(az cosmosdb keys list \
+            --resource-group "${{ steps.names.outputs.resource_group }}" \
+            --name "$cosmos_name" \
+            --type connection-strings \
+            --query 'connectionStrings[0].connectionString' \
+            --output tsv)"
+
+          echo "::add-mask::$cosmos_connection_string"
+          echo "::add-mask::${{ secrets.CIAM_CLIENT_SECRET }}"
+
+          az staticwebapp appsettings set \
+            --resource-group "${{ steps.names.outputs.resource_group }}" \
+            --name "$swa_name" \
+            --setting-names \
+              CIAM_CLIENT_SECRET="${{ secrets.CIAM_CLIENT_SECRET }}" \
+              COSMOS_CONNECTION_STRING="$cosmos_connection_string"

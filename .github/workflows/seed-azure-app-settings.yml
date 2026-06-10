@@ -1,0 +1,73 @@
+name: Seed Azure App Settings
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: acceptance
+        type: choice
+        options:
+          - acceptance
+          - production
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: seed-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  seed:
+    name: Seed ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Resolve Azure names
+        id: names
+        shell: bash
+        run: |
+          case "${{ inputs.environment }}" in
+            acceptance)
+              echo "resource_group=rg-l-gevity-acc" >> "$GITHUB_OUTPUT"
+              echo "swa_name=swa-l-gevity-acc" >> "$GITHUB_OUTPUT"
+              echo "cosmos_name=cosmos-l-gevity-acc" >> "$GITHUB_OUTPUT"
+              ;;
+            production)
+              echo "resource_group=rg-l-gevity-prd" >> "$GITHUB_OUTPUT"
+              echo "swa_name=swa-l-gevity-prd" >> "$GITHUB_OUTPUT"
+              echo "cosmos_name=cosmos-l-gevity-prd" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      - name: Seed application settings
+        shell: bash
+        run: |
+          cosmos_connection_string="$(az cosmosdb keys list \
+            --resource-group "${{ steps.names.outputs.resource_group }}" \
+            --name "${{ steps.names.outputs.cosmos_name }}" \
+            --type connection-strings \
+            --query 'connectionStrings[0].connectionString' \
+            --output tsv)"
+
+          echo "::add-mask::$cosmos_connection_string"
+          echo "::add-mask::${{ secrets.CIAM_CLIENT_SECRET }}"
+
+          az staticwebapp appsettings set \
+            --resource-group "${{ steps.names.outputs.resource_group }}" \
+            --name "${{ steps.names.outputs.swa_name }}" \
+            --setting-names \
+              CIAM_CLIENT_SECRET="${{ secrets.CIAM_CLIENT_SECRET }}" \
+              COSMOS_CONNECTION_STRING="$cosmos_connection_string"

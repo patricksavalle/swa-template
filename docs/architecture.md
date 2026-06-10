@@ -4,24 +4,25 @@
 
 This template separates the project into a small number of durable boundaries:
 
-- `app/` for browser-facing user experience.
-- `api/` for server-side boundaries.
-- `packages/` for shared code with multiple proven consumers.
-- `infrastructure/` for deployable platform state.
+- `html/` for static markup.
+- `css/` for styling.
+- `img/` for image and media assets.
+- `ts/` for TypeScript source.
+- `docs/infrastructure.md` for deployable platform planning.
 - `tests/` for cross-boundary verification.
 
 ## Dependency Direction
 
-Default dependency flow:
+Default TypeScript dependency flow:
 
 ```text
-app  -> packages
-api  -> packages
-tests -> app/api/packages
-infrastructure -> deployable artifacts
+ts/userinterface  -> ts/businesslogic
+ts/infrastructure -> ts/businesslogic contracts
+tests             -> html/css/ts
 ```
 
-Avoid dependencies from `packages/` back into `app/` or `api/`.
+Avoid dependencies from `ts/businesslogic/` into concrete UI, browser, network,
+storage, or deployment implementations.
 
 ## Extension Rule
 

@@ -13,13 +13,18 @@ business code, framework lock-in, or project-specific infrastructure.
 
 Use a flat, generic structure with durable boundaries:
 
-- `app/`
-- `api/`
-- `packages/`
-- `infrastructure/`
+- `html/`
+- `css/`
+- `img/`
+- `ts/infrastructure/`
+- `ts/businesslogic/`
+- `ts/userinterface/`
 - `tests/`
 - `docs/`
 - `scripts/`
+
+Agent skills are committed under `.agents/skills/` so the repository is ready
+to clone and use with compatible agents.
 
 Provider-specific infrastructure and framework-specific application code are
 added only after the target project chooses them.

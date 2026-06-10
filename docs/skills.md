@@ -1,8 +1,9 @@
 # Skills
 
 This template includes generic agent skills that can be used as project-local
-guidance. They are vendored under `skills/` so a new project starts with a
-complete baseline and can remove anything that does not fit.
+guidance. They are vendored under `.agents/skills/` so a new project starts
+with a complete, ready-to-clone agent baseline and can remove anything that
+does not fit.
 
 ## Included Skills
 
@@ -23,15 +24,13 @@ complete baseline and can remove anything that does not fit.
 
 ## Use In A Project
 
-Keep `skills/` as the canonical source. If an agent expects a specific path,
-copy or install from this directory instead of editing multiple copies.
+Keep `.agents/skills/` as the canonical source.
 
 Examples:
 
 ```text
-skills/                         canonical source
-.agents/skills/                 generated or installed target
-.claude/skills/                 generated or installed target
+.agents/skills/                 canonical source for this template
+.claude/skills/                 optional generated target for Claude-style tools
 ```
 
 ## Maintenance Rules

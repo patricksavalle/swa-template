@@ -10,11 +10,14 @@ const requiredPaths = [
   "docs/skills.md",
   "docs/infrastructure.md",
   ".github/workflows/ci.yml",
-  "api/README.md",
-  "app/README.md",
-  "infrastructure/README.md",
-  "packages/README.md",
-  "skills/architecture-guidelines/SKILL.md",
+  ".agents/skills/architecture-guidelines/SKILL.md",
+  "css/README.md",
+  "html/README.md",
+  "img/README.md",
+  "ts/README.md",
+  "ts/infrastructure/README.md",
+  "ts/businesslogic/README.md",
+  "ts/userinterface/README.md",
   "tests/README.md"
 ];
 
@@ -45,7 +48,8 @@ for (const relativePath of requiredPaths) {
   await access(path.join(root, relativePath));
 }
 
-const skillDirectories = await readdir(path.join(root, "skills"), { withFileTypes: true });
+const skillRoot = path.join(root, ".agents", "skills");
+const skillDirectories = await readdir(skillRoot, { withFileTypes: true });
 const actualSkills = skillDirectories
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
@@ -57,7 +61,7 @@ if (missingSkills.length > 0) {
 }
 
 for (const skill of actualSkills) {
-  await access(path.join(root, "skills", skill, "SKILL.md"));
+  await access(path.join(skillRoot, skill, "SKILL.md"));
 }
 
 async function collectTextFiles(directory) {

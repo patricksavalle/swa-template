@@ -10,35 +10,38 @@ framework, API runtime, cloud provider module layout, or business domain.
 
 ```text
 swa-template/
+├── .agents/
+│   └── skills/
 ├── .github/
 │   └── workflows/
-├── api/
-├── app/
+├── css/
 ├── docs/
-├── infrastructure/
-├── packages/
+├── html/
+├── img/
 ├── scripts/
-├── skills/
+├── ts/
+│   ├── infrastructure/
+│   ├── businesslogic/
+│   └── userinterface/
 └── tests/
 ```
 
 ## Directory Roles
 
-- `app/` holds the static web frontend or SPA.
-- `api/` holds serverless functions or backend endpoints.
-- `packages/` holds shared libraries used by `app/` and `api/`.
-- `infrastructure/` holds IaC modules, environment definitions, and deployment
-  parameters.
-- `tests/` holds cross-boundary tests that do not belong to one package.
+- `.agents/skills/` holds the ready-to-use generic agent skills.
+- `html/` holds static HTML entry points and document fragments.
+- `css/` holds stylesheets, design tokens, and static styling assets.
+- `img/` holds images and media assets.
+- `ts/` holds TypeScript source in infrastructure, business logic, and user
+  interface tiers.
+- `tests/` holds cross-boundary tests that do not belong to one tier.
 - `docs/` holds architecture, infrastructure, and operational decisions.
 - `scripts/` holds validation, build, release, and local automation.
-- `skills/` holds generic agent skills that can be installed into a target
-  agent runtime or used directly by compatible agents.
 
 ## Start Here
 
-1. Choose the frontend and API runtimes.
-2. Replace placeholder README files in `app/`, `api/`, and `packages/`.
+1. Choose the frontend runtime, if plain HTML/CSS/TypeScript is not enough.
+2. Replace placeholder README files in `html/`, `css/`, `img/`, and `ts/`.
 3. Fill in `docs/infrastructure.md` with the target cloud resources.
 4. Review `docs/skills.md` and keep only the skills that fit the project.
 5. Add real build and test commands to `package.json`.

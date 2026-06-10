@@ -73,6 +73,19 @@ Use repository or environment variables for non-secret identifiers.
 
 Use secrets only where the target platform cannot use federated identity.
 
+## Static Web App Locations
+
+The template uses SWA-recognizable defaults:
+
+| Setting | Value | Purpose |
+| --- | --- | --- |
+| `app_location` | `.` | Repository root is the build context. |
+| `api_location` | `api` | Optional serverless API source. |
+| `output_location` | `dist` | Static artifact produced by CI. |
+
+The source directories are intentionally flatter than many framework templates:
+`html/`, `css/`, `img/`, and `ts/` build into `dist/`.
+
 ## Open Decisions
 
 - Cloud provider and region.

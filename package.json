@@ -10,8 +10,17 @@
   },
   "scripts": {
     "validate": "node scripts/validate-template.mjs",
-    "build": "node scripts/build-placeholder.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "node scripts/build-placeholder.mjs && tsc --project tsconfig.json",
     "test": "node scripts/test-placeholder.mjs",
-    "ci": "npm run validate && npm run build && npm test"
+    "ci": "npm run validate && npm run lint && npm run typecheck && npm run build && npm test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.4.1",
+    "eslint-plugin-boundaries": "^6.0.2",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.0"
   }
 }

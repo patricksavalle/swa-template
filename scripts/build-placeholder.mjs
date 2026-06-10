@@ -1,27 +1,33 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { cp, mkdir, readdir, rm } from "node:fs/promises";
 import path from "node:path";
 
-const dist = path.join(process.cwd(), "dist");
+const root = process.cwd();
+const dist = path.join(root, "dist");
+
+const staticCopies = [
+  { from: "html", to: "." },
+  { from: "css", to: "css" },
+  { from: "img", to: "img" }
+];
+
+await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 
-await writeFile(
-  path.join(dist, "index.html"),
-  `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>swa-template</title>
-  </head>
-  <body>
-    <main>
-      <h1>swa-template</h1>
-      <p>Replace this placeholder with the selected frontend build output.</p>
-    </main>
-  </body>
-</html>
-`,
-  "utf8"
-);
+for (const copyJob of staticCopies) {
+  const source = path.join(root, copyJob.from);
+  const target = path.join(dist, copyJob.to);
+  await mkdir(target, { recursive: true });
 
-console.log("Placeholder artifact written to dist/.");
+  const entries = await readdir(source, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.name === "README.md") {
+      continue;
+    }
+
+    await cp(path.join(source, entry.name), path.join(target, entry.name), {
+      recursive: true
+    });
+  }
+}
+
+console.log("Static assets copied to dist/.");

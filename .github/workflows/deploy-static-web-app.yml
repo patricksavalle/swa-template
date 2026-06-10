@@ -16,6 +16,11 @@ permissions:
   contents: read
   id-token: write
 
+env:
+  SWA_APP_LOCATION: .
+  SWA_API_LOCATION: api
+  SWA_OUTPUT_LOCATION: dist
+
 concurrency:
   group: deploy-${{ inputs.environment }}
   cancel-in-progress: false
@@ -72,7 +77,10 @@ jobs:
 
       - name: Deploy artifact
         run: |
-          echo "Deploy dist/ to the selected Static Web App host."
+          echo "Deploy ${SWA_OUTPUT_LOCATION}/ to the selected Static Web App host."
+          echo "App location: ${SWA_APP_LOCATION}"
+          echo "API location: ${SWA_API_LOCATION}"
+          echo "Output location: ${SWA_OUTPUT_LOCATION}"
           echo "Target environment: ${{ inputs.environment }}"
 
       - name: Health check

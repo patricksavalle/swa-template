@@ -16,6 +16,7 @@ Use a flat, generic structure with durable boundaries:
 - `html/`
 - `css/`
 - `img/`
+- `api/`
 - `ts/infrastructure/`
 - `ts/businesslogic/`
 - `ts/userinterface/`
@@ -24,7 +25,8 @@ Use a flat, generic structure with durable boundaries:
 - `scripts/`
 
 Agent skills are committed under `.agents/skills/` so the repository is ready
-to clone and use with compatible agents.
+to clone and use with compatible agents. Architecture lint rules are committed
+as `eslint.architecture.mjs` files before implementation code.
 
 Provider-specific infrastructure and framework-specific application code are
 added only after the target project chooses them.

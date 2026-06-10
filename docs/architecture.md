@@ -7,6 +7,7 @@ This template separates the project into a small number of durable boundaries:
 - `html/` for static markup.
 - `css/` for styling.
 - `img/` for image and media assets.
+- `api/` for optional serverless endpoints.
 - `ts/` for TypeScript source.
 - `docs/infrastructure.md` for deployable platform planning.
 - `tests/` for cross-boundary verification.
@@ -17,12 +18,17 @@ Default TypeScript dependency flow:
 
 ```text
 ts/userinterface  -> ts/businesslogic
+ts/userinterface  -> ts/infrastructure
 ts/infrastructure -> ts/businesslogic contracts
-tests             -> html/css/ts
+api               -> ts/businesslogic or ts/infrastructure
+tests             -> html/css/ts/api
 ```
 
 Avoid dependencies from `ts/businesslogic/` into concrete UI, browser, network,
 storage, or deployment implementations.
+
+Architecture rules are declared in `eslint.architecture.mjs` files and enforced
+by `npm run lint`.
 
 ## Extension Rule
 

@@ -5,6 +5,106 @@ Generic starter template for an Azure Static Web App project with 11ty.
 This template uses 11ty as the static site generator and keeps the source
 layout deliberately flat.
 
+## Workstation Prerequisites
+
+Install these tools before cloning a project from the template.
+
+| Tool | Required for |
+| --- | --- |
+| Git | Clone, branch, commit, push |
+| Node.js LTS + npm | Install dependencies, run 11ty, TypeScript, ESLint, local tools |
+| GitHub CLI (`gh`) | GitHub authentication, repo setup, Actions and environment checks |
+| Azure CLI (`az`) | Azure login, Bicep validation, manual provisioning checks |
+| Azure Static Web Apps CLI (`swa`) | Optional local SWA emulation and direct SWA commands |
+| Cloudflare Wrangler (`wrangler`) | Optional Cloudflare DNS, Workers, Pages, or edge integrations |
+
+Official install references:
+
+- [Git](https://git-scm.com/downloads)
+- [Node.js](https://nodejs.org/en/download)
+- [GitHub CLI](https://github.com/cli/cli#installation)
+- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
+- [Azure Static Web Apps CLI](https://azure.github.io/static-web-apps-cli/docs/use/install/)
+- [Cloudflare Wrangler](https://developers.cloudflare.com/workers/wrangler/install-and-update/)
+
+### Windows
+
+```powershell
+winget install --id Git.Git -e
+winget install --id OpenJS.NodeJS.LTS -e
+winget install --id GitHub.cli -e
+winget install --id Microsoft.AzureCLI -e
+npm install -g @azure/static-web-apps-cli
+```
+
+Wrangler is best installed per project once Cloudflare is needed:
+
+```powershell
+npm install -D wrangler@latest
+```
+
+### macOS
+
+```bash
+brew install git node gh azure-cli
+npm install -g @azure/static-web-apps-cli
+```
+
+Wrangler is best installed per project once Cloudflare is needed:
+
+```bash
+npm install -D wrangler@latest
+```
+
+### Ubuntu / Debian / WSL
+
+```bash
+sudo apt-get update
+sudo apt-get install -y git curl ca-certificates
+```
+
+Install Node.js LTS, GitHub CLI, and Azure CLI from their official package
+sources, then install the SWA CLI with npm:
+
+```bash
+npm install -g @azure/static-web-apps-cli
+```
+
+Wrangler is best installed per project once Cloudflare is needed:
+
+```bash
+npm install -D wrangler@latest
+```
+
+### Verify Tools
+
+```bash
+git --version
+node --version
+npm --version
+gh --version
+az version
+az bicep version
+swa --version
+npx wrangler --version
+```
+
+If `az bicep version` fails because Bicep is missing:
+
+```bash
+az bicep install
+```
+
+### Authenticate Tools
+
+```bash
+gh auth login
+az login
+npx wrangler login
+```
+
+`npx wrangler login` is only needed for projects that use Cloudflare.
+
 ## Structure
 
 ```text

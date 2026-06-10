@@ -95,6 +95,7 @@ const sharedGlobals = {
   Buffer: "readonly",
   URL: "readonly",
   URLSearchParams: "readonly",
+  fetch: "readonly",
   setTimeout: "readonly",
   clearTimeout: "readonly"
 };

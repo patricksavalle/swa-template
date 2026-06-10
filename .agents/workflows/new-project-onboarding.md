@@ -15,7 +15,7 @@ Collect these before changing files or cloud state:
 | Azure subscription ID | `00000000-0000-0000-0000-000000000000` | Human |
 | Azure tenant ID | `00000000-0000-0000-0000-000000000000` | Human |
 | CIAM tenant/client values | project-specific | Human |
-| Cloudflare account access | browser/API login | Human |
+| Cloudflare short-lived API token | Zone-scoped token with `Zone:Read` and `DNS:Edit` | Human |
 | GitHub access | `gh auth login` | Human |
 
 Never ask the user to paste secrets into chat unless there is no safer local
@@ -35,8 +35,8 @@ The agent MAY do:
 - create Azure app registrations, service principals, role assignments, and
   provider registrations through `az` after the human logs in
 - dispatch GitHub Actions workflows
-- add Cloudflare DNS records through Wrangler/API after the human authorizes
-  Cloudflare access
+- add Cloudflare DNS records through the Cloudflare API after the human provides
+  a short-lived zone-scoped token
 
 The human MUST do:
 
@@ -45,6 +45,7 @@ The human MUST do:
 - complete browser-based logins and MFA
 - change registrar nameservers when no safe API access is configured
 - provide or rotate CIAM/client secrets
+- create and revoke the short-lived Cloudflare API token
 - approve production DNS and production deployment
 
 ## Workflow
@@ -141,6 +142,17 @@ Record planned domains in `INFRASTRUCTURE.md`:
 
 Do not create SWA custom-domain records until the matching SWA exists.
 
+Ask the human to create a short-lived Cloudflare API token for the setup window:
+
+```text
+permissions: Zone:Read, DNS:Edit
+scope: the single <root-domain> zone
+ttl: shortest practical setup window
+```
+
+The token must be provided as `CLOUDFLARE_API_TOKEN` in the local shell, not
+pasted into committed files or stored as a long-lived GitHub secret.
+
 ### 5. Azure Bootstrap
 
 Ask the human to select or create the Azure subscription, then run:
@@ -217,6 +229,29 @@ az staticwebapp show \
 
 Add custom domains in Azure Static Web Apps, then add the Cloudflare validation
 and CNAME records described in `INFRASTRUCTURE.md`.
+
+Upsert DNS records with a dry run first:
+
+```bash
+CLOUDFLARE_API_TOKEN="<short-lived-token>" npm run dns:cloudflare -- \
+  --zone "<root-domain>" \
+  --production-host "<production-swa-default-hostname>" \
+  --acceptance-host "<acceptance-swa-default-hostname>" \
+  --dry-run
+```
+
+Apply DNS-only records:
+
+```bash
+CLOUDFLARE_API_TOKEN="<short-lived-token>" npm run dns:cloudflare -- \
+  --zone "<root-domain>" \
+  --production-host "<production-swa-default-hostname>" \
+  --acceptance-host "<acceptance-swa-default-hostname>"
+```
+
+After Azure validates the custom domains and provisions managed certificates,
+run the same command with `--proxied true` if the project wants Cloudflare
+proxying enabled. Ask the human to revoke the token after verification.
 
 ### 8. Deploy
 

@@ -161,6 +161,7 @@ Give the agent:
 | Azure subscription ID | `00000000-0000-0000-0000-000000000000` |
 | Azure tenant ID | `00000000-0000-0000-0000-000000000000` |
 | CIAM tenant/client values | project-specific |
+| Cloudflare short-lived API token | Zone-scoped token with `Zone:Read` and `DNS:Edit` |
 
 The agent can clone, rename, repoint Git, verify tools, run CI, update docs,
 configure GitHub environments, register Azure providers, create deployment
@@ -173,6 +174,7 @@ The human must approve or perform:
 - browser logins and MFA
 - registrar nameserver changes when no safe API access is configured
 - secret entry or rotation
+- short-lived Cloudflare API token creation and revocation
 - production DNS and production deployment approval
 
 Manual details and exact commands live in
@@ -205,9 +207,12 @@ Deploy workflow locations:
 
 ```text
 app_location: dist
-api_location: api
+api_location: ''
 output_location: ''
 ```
+
+Set the GitHub variable `SWA_API_LOCATION=api` only after adding a real Azure
+Functions-compatible API runtime.
 
 The build renders `html/` with 11ty, copies `css/`, `img/`, and
 `staticwebapp.config.json` into `dist/`, then compiles `ts/` into `dist/ts/`.

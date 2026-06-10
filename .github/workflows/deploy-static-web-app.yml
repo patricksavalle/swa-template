@@ -16,11 +16,6 @@ permissions:
   contents: read
   id-token: write
 
-env:
-  SWA_APP_LOCATION: .
-  SWA_API_LOCATION: api
-  SWA_OUTPUT_LOCATION: dist
-
 concurrency:
   group: deploy-${{ inputs.environment }}
   cancel-in-progress: false
@@ -111,8 +106,18 @@ jobs:
             --name "${{ steps.names.outputs.swa_name }}" \
             --query 'properties.apiKey' \
             --output tsv)"
+          default_hostname="$(az staticwebapp show \
+            --resource-group "${{ steps.names.outputs.resource_group }}" \
+            --name "${{ steps.names.outputs.swa_name }}" \
+            --query 'defaultHostname' \
+            --output tsv)"
+          if [ -z "$default_hostname" ]; then
+            echo "ERROR: Could not resolve SWA default hostname."
+            exit 1
+          fi
           echo "::add-mask::$token"
           echo "token=$token" >> "$GITHUB_OUTPUT"
+          echo "default_hostname=$default_hostname" >> "$GITHUB_OUTPUT"
 
       - name: Deploy artifact
         uses: Azure/static-web-apps-deploy@v1
@@ -120,11 +125,14 @@ jobs:
           azure_static_web_apps_api_token: ${{ steps.swa-token.outputs.token }}
           action: upload
           app_location: dist
-          api_location: api
+          api_location: ${{ vars.SWA_API_LOCATION || '' }}
           output_location: ''
           skip_app_build: true
           skip_api_build: true
 
       - name: Health check
+        shell: bash
         run: |
-          echo "Replace this with a real health check before production use."
+          url="https://${{ steps.swa-token.outputs.default_hostname }}/"
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 5 --retry-all-errors "$url" >/dev/null
+          echo "Health check OK: $url"

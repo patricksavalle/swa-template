@@ -14,7 +14,7 @@ Azure tenant / subscription
 └── Resource group: rg-<app-name>-<env-suffix>
     ├── Azure Static Web App: swa-<app-name>-<env-suffix>
     │   ├── Static artifact: dist/
-    │   ├── Optional API source: api/
+    │   ├── Optional API source when `SWA_API_LOCATION` is set
     │   └── App settings seeded by GitHub workflows
     ├── Cosmos DB for NoSQL: cosmos-<app-name>-<env-suffix>
     │   └── SQL database: app
@@ -92,7 +92,7 @@ SWA locations:
 | SWA setting | Value | Meaning |
 | --- | --- | --- |
 | `app_location` | `dist` during deploy | Prebuilt static artifact |
-| `api_location` | `api` | Optional API source |
+| `api_location` | empty by default | Set GitHub variable `SWA_API_LOCATION=api` after adding a real API runtime |
 | `output_location` | empty during deploy | Build already happened in CI |
 
 Local SWA CLI config keeps `appLocation` as `.` because it runs the configured
@@ -161,12 +161,14 @@ az staticwebapp show \
 
 1. Provision the target Static Web App.
 2. Resolve the SWA default hostname.
-3. Add the Cloudflare DNS record as DNS-only or proxied according to the table.
-4. In Azure Static Web Apps, add the custom domain to the matching environment.
-5. Add any Azure-provided validation `TXT` record in Cloudflare as DNS-only.
-6. Wait for Azure domain validation and managed certificate provisioning.
-7. Switch web-serving `CNAME` records to proxied when validation is complete.
-8. Verify HTTPS for every public domain.
+3. Ask the human for a short-lived Cloudflare API token scoped to this zone
+   with `Zone:Read` and `DNS:Edit`.
+4. Add the Cloudflare DNS record as DNS-only or proxied according to the table.
+5. In Azure Static Web Apps, add the custom domain to the matching environment.
+6. Add any Azure-provided validation `TXT` record in Cloudflare as DNS-only.
+7. Wait for Azure domain validation and managed certificate provisioning.
+8. Switch web-serving `CNAME` records to proxied when validation is complete.
+9. Verify HTTPS for every public domain.
 
 Azure Static Web Apps validates subdomains with CNAME records. Apex domains
 require ownership validation first; with Cloudflare, use CNAME flattening for
@@ -189,9 +191,22 @@ Use these defaults unless a project-specific ADR records a different choice:
 | Validation records | DNS only |
 | TTL | Auto for proxied records; default TTL for DNS-only validation records |
 
-Cloudflare configuration is not currently provisioned by GitHub Actions in this
-template. Treat this section as the source of truth for manual DNS setup or for
-a future Wrangler/Terraform automation layer.
+Cloudflare DNS records can be upserted locally with a short-lived API token:
+
+```bash
+CLOUDFLARE_API_TOKEN="<short-lived-token>" npm run dns:cloudflare -- \
+  --zone "<root-domain>" \
+  --production-host "<production-swa-default-hostname>" \
+  --acceptance-host "<acceptance-swa-default-hostname>" \
+  --dry-run
+```
+
+Remove `--dry-run` to apply DNS-only records. Add `--proxied true` after Azure
+custom-domain validation has completed and managed certificates are active.
+
+The token must not be committed or stored as a long-lived GitHub secret. Create
+it for the setup window, scope it to the single Cloudflare zone, and revoke it
+after DNS records are verified.
 
 ---
 
@@ -243,6 +258,7 @@ Each environment stores the values used by workflows for that environment.
 | Variable | Purpose |
 | --- | --- |
 | `APP_NAME` | Overrides the repository-derived Azure name prefix |
+| `SWA_API_LOCATION` | Optional API source path. Leave unset for static-only projects; set to `api` only after adding a real Azure Functions-compatible runtime. |
 
 No Key Vault is used in this template. Seed secrets live in GitHub
 environments and are written into Azure Static Web App application settings by
@@ -336,24 +352,6 @@ implementation code.
 
 ---
 
-## DNS And Custom Domains
-
-DNS is intentionally not provisioned by this template.
-
-For a real project, record externally managed DNS here after instantiation:
-
-| Name | Type | Target | Environment |
-| --- | --- | --- | --- |
-| TBD | CNAME/TXT | TBD | acceptance |
-| TBD | CNAME/TXT | TBD | production |
-
-Azure Static Web Apps custom domain validation usually requires DNS records
-created outside this repository. Keep those records in this document after the
-project is instantiated, because they cannot be inferred from Bicep unless DNS
-is later brought under IaC.
-
----
-
 ## Telemetry
 
 Application telemetry is workspace-based:
@@ -411,8 +409,8 @@ Run these checks after provisioning or changing infrastructure.
 
 1. CIAM tenant and app registration are external prerequisites.
 2. No Key Vault is used; seed secrets are stored in GitHub environments.
-3. DNS/custom domains are documented manually unless the instantiated project
-   adds DNS IaC.
+3. Cloudflare DNS automation requires a short-lived API token provided during
+   onboarding.
 4. Alert rules, dashboards, and SLO thresholds are not included until the
    instantiated project defines ownership and thresholds.
 5. The optional `api/` boundary is present, but no concrete API runtime is

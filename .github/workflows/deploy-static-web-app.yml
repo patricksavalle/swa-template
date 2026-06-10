@@ -43,7 +43,7 @@ jobs:
         run: npm run ci
 
       - name: Upload immutable artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: static-web-artifact-${{ github.sha }}
           path: dist/
@@ -51,7 +51,7 @@ jobs:
           retention-days: 30
 
       - name: Upload API artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: api-artifact-${{ github.sha }}
           path: |

@@ -1,0 +1,55 @@
+<figure class="mt-4">
+  <svg class="h-auto w-full" role="img" aria-labelledby="infrastructure-graph-title infrastructure-graph-description" viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg">
+    <title id="infrastructure-graph-title">Infrastructure component graph</title>
+    <desc id="infrastructure-graph-description">Bicep provisions Azure Static Web Apps, a Functions API, Application Insights, and Cosmos DB. GitHub Actions deploys the static site and API artifact.</desc>
+    <defs>
+      <marker id="arrowhead" markerHeight="7" markerWidth="8" orient="auto" refX="7" refY="3.5">
+        <path d="M0 0L8 3.5L0 7Z" fill="#475569" />
+      </marker>
+      <style>
+        .node { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+        .node-accent { fill: #eff6ff; stroke: #2563eb; }
+        .node-data { fill: #f0fdf4; stroke: #059669; }
+        .node-ops { fill: #fff7ed; stroke: #d97706; }
+        .line { fill: none; stroke: #475569; stroke-width: 1.5; marker-end: url(#arrowhead); }
+        .label { fill: #0f172a; font-family: system-ui, sans-serif; font-size: 12px; font-weight: 700; }
+        .sub { fill: #475569; font-family: system-ui, sans-serif; font-size: 10px; }
+        @media (prefers-color-scheme: dark) {
+          .node { fill: #0f172a; stroke: #334155; }
+          .node-accent { fill: #172554; stroke: #60a5fa; }
+          .node-data { fill: #052e1b; stroke: #34d399; }
+          .node-ops { fill: #431407; stroke: #f59e0b; }
+          .line { stroke: #94a3b8; }
+          .label { fill: #f8fafc; }
+          .sub { fill: #cbd5e1; }
+        }
+      </style>
+    </defs>
+
+    <rect class="node node-ops" x="118" y="8" width="124" height="40" rx="8" />
+    <text class="label" x="180" y="25" text-anchor="middle">Bicep</text>
+    <text class="sub" x="180" y="38" text-anchor="middle">provisions Azure</text>
+
+    <rect class="node node-accent" x="22" y="78" width="124" height="48" rx="8" />
+    <text class="label" x="84" y="98" text-anchor="middle">Static Web Apps</text>
+    <text class="sub" x="84" y="113" text-anchor="middle">HTML + assets</text>
+
+    <rect class="node node-accent" x="214" y="78" width="124" height="48" rx="8" />
+    <text class="label" x="276" y="98" text-anchor="middle">Functions API</text>
+    <text class="sub" x="276" y="113" text-anchor="middle">optional boundary</text>
+
+    <rect class="node node-data" x="22" y="154" width="124" height="40" rx="8" />
+    <text class="label" x="84" y="171" text-anchor="middle">Cosmos DB</text>
+    <text class="sub" x="84" y="184" text-anchor="middle">data resources</text>
+
+    <rect class="node node-data" x="214" y="154" width="124" height="40" rx="8" />
+    <text class="label" x="276" y="171" text-anchor="middle">App Insights</text>
+    <text class="sub" x="276" y="184" text-anchor="middle">telemetry</text>
+
+    <path class="line" d="M150 48L100 78" />
+    <path class="line" d="M210 48L260 78" />
+    <path class="line" d="M146 102H214" />
+    <path class="line" d="M255 126L112 154" />
+    <path class="line" d="M276 126V154" />
+  </svg>
+</figure>

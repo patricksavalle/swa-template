@@ -49,6 +49,7 @@ const requiredPaths = [
   "css/site.css",
   "html/README.md",
   "html/_includes/components/feature-card.html",
+  "html/_includes/components/infrastructure-graph.html",
   "html/index.html",
   "img/README.md",
   "ts/README.md",

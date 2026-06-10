@@ -13,6 +13,9 @@ description:
 > `architecture-guidelines`. Placement and dependency coordinates live in
 > `geometric-architecture`. Executable dependency rules live in
 > `architecture-as-code-javascript`.
+> Durable stack decisions belong in `docs/decisions/`; the current map belongs
+> in `docs/architecture.md`; deployed platform details belong in
+> `INFRASTRUCTURE.md`.
 
 > **Core Directives**
 >
@@ -42,6 +45,11 @@ Use this skill to capture the project's concrete technical design:
 | **Events** | Producer, event name/type, payload, consumer, failure handling |
 | **API** | Route, auth boundary, validation, idempotency, response contract |
 | **Build** | Generated files, artifact paths, environment injection points |
+
+Record durable initial choices as ADRs under `docs/decisions/`. Record the
+current stack and module map in `docs/architecture.md`. Keep
+`INFRASTRUCTURE.md` limited to deployable platform, environments, secrets,
+naming, and operational workflows.
 
 ## 2. Stack Boundaries
 

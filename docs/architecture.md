@@ -9,8 +9,30 @@ This template separates the project into a small number of durable boundaries:
 - `img/` for image and media assets.
 - `api/` for optional serverless endpoints.
 - `ts/` for TypeScript source.
-- `INFRASTRUCTURE.md` for deployable platform and project-structure decisions.
+- `infrastructure/` for Bicep templates and environment parameters.
+- `docs/decisions/` for accepted architecture decisions.
+- `INFRASTRUCTURE.md` for deployed platform, environment, naming, and secrets
+  contracts.
 - `tests/` for cross-boundary verification.
+
+## Stack Baseline
+
+The initial stack decision is recorded in
+`docs/decisions/0002-stack-baseline.md`.
+
+| Area | Current baseline |
+| --- | --- |
+| Language | TypeScript for app source; JavaScript ES modules for scripts/config |
+| Static rendering | 11ty renders `html/` to `dist/` |
+| Styling | Plain CSS in `css/`; no inline styles |
+| UI runtime | Browser-native JavaScript; no UI framework by default |
+| API | Optional Azure Functions-compatible boundary in `api/` |
+| Platform | Azure Static Web Apps |
+| Infrastructure | Bicep in `infrastructure/` |
+| CI/CD | GitHub Actions with OIDC-based Azure login |
+| Enforcement | ESLint flat config plus `eslint-plugin-boundaries` |
+
+Stack changes require an ADR update and this living architecture summary update.
 
 ## Dependency Direction
 

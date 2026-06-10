@@ -110,7 +110,8 @@ npx wrangler login
 ```text
 swa-template/
 ├── .agents/
-│   └── skills/
+│   ├── skills/
+│   └── workflows/
 ├── .github/
 │   └── workflows/
 ├── css/
@@ -129,6 +130,7 @@ swa-template/
 ## Directory Roles
 
 - `.agents/skills/` holds the ready-to-use generic agent skills.
+- `.agents/workflows/` holds agent-operated setup and delivery workflows.
 - `html/` holds 11ty pages, includes, layouts, and data.
 - `css/` holds stylesheets, design tokens, and static styling assets.
 - `img/` holds images and media assets.
@@ -141,224 +143,43 @@ swa-template/
 
 ## Start Here
 
-Use this sequence for a new project based on the template.
-
-### 1. Clone And Rename
-
-```bash
-git clone https://github.com/patricksavalle/swa-template.git <new-repo>
-cd <new-repo>
-git remote set-url origin https://github.com/<owner>/<new-repo>.git
-npm pkg set name="<new-repo>"
-```
-
-Also update the README title and any visible placeholder copy before the first
-project commit.
-
-### 2. Verify Locally
-
-```bash
-npm ci
-npm run ci
-```
-
-For local development:
-
-```bash
-npm run dev
-```
-
-The local server renders 11ty pages from `html/`, copies static assets from
-`css/` and `img/`, and compiles TypeScript from `ts/`.
-
-### 3. Set Project Decisions
-
-Before feature work, review:
-
-- `docs/decisions/0001-template-boundaries.md`
-- `docs/decisions/0002-stack-baseline.md`
-- `docs/architecture.md`
-- `docs/skills.md`
-- `INFRASTRUCTURE.md`
-
-Keep the default stack unless the project records a new ADR. Add app code in
-`html/`, `css/`, `img/`, `api/`, and `ts/`. Keep or tighten the generic
-architecture rules in `eslint.architecture.mjs`.
-
-### 4. Push The New Repository
-
-```bash
-git push -u origin main
-```
-
-GitHub Actions will run `CI`, which validates the template, lints, typechecks,
-builds `dist/`, and runs the placeholder test.
-
-### 5. Register Domain And Move DNS To Cloudflare
-
-Register or select the root domain before production launch.
-
-Domain setup:
-
-1. Buy or select `<root-domain>` at a domain registrar.
-2. Create or sign in to a [Cloudflare](https://dash.cloudflare.com/) account.
-3. Add `<root-domain>` as a Cloudflare zone.
-4. Review Cloudflare's imported DNS records before changing nameservers.
-5. In Cloudflare, copy the two assigned authoritative nameservers.
-6. At the domain registrar, replace the current nameservers with the two
-   Cloudflare nameservers.
-7. If DNSSEC is active at the registrar, disable it before changing
-   nameservers.
-8. Wait until Cloudflare marks the zone active.
-9. Re-enable DNSSEC from Cloudflare after the zone is active.
-
-Cloudflare becomes the canonical DNS control plane for the project after the
-nameserver switch. Record the final domains and DNS records in
-`INFRASTRUCTURE.md`.
-
-Expected project domains:
-
-| Role | Domain |
-| --- | --- |
-| Production apex | `<root-domain>` |
-| Production www | `www.<root-domain>` |
-| Acceptance | `acceptance.<root-domain>` |
-
-Do not add Azure Static Web Apps custom-domain DNS records until the matching
-Azure Static Web App exists. The DNS target is the SWA default hostname created
-by the provisioning workflow.
-
-References:
-
-- [Cloudflare full setup](https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/)
-- [Cloudflare nameserver updates](https://developers.cloudflare.com/dns/nameservers/update-nameservers/)
-
-### 6. Create Azure Subscription And Deployment Identity
-
-Create or select the Azure subscription before configuring GitHub.
-
-Azure subscription setup:
-
-1. Sign in to the [Azure portal](https://portal.azure.com/).
-2. Create a subscription in the Microsoft Entra tenant that will own the
-   Azure resources.
-3. Confirm the subscription owner can create resource groups and register
-   resource providers.
-4. Keep the subscription ID; it becomes `AZURE_SUBSCRIPTION_ID`.
-
-Local Azure CLI check:
-
-```bash
-az login
-az account list --output table
-az account set --subscription "<subscription-id>"
-az account show --output table
-```
-
-Register the providers used by this template:
-
-```bash
-az provider register --namespace Microsoft.Web
-az provider register --namespace Microsoft.DocumentDB
-az provider register --namespace Microsoft.OperationalInsights
-az provider register --namespace Microsoft.Insights
-az provider register --namespace Microsoft.ManagedIdentity
-```
-
-Create one Microsoft Entra app registration for GitHub Actions deployments.
-Grant its service principal permission to create and update resources in the
-subscription.
-
-```bash
-az ad app create --display-name "<new-repo>-github-actions"
-az ad sp create --id "<application-client-id>"
-az role assignment create \
-  --assignee "<application-client-id>" \
-  --role Contributor \
-  --scope "/subscriptions/<subscription-id>"
-```
-
-Add federated credentials to the app registration for both GitHub environments:
+Most setup work is agent-operable. Ask an agent:
 
 ```text
-issuer: https://token.actions.githubusercontent.com
-audience: api://AzureADTokenExchange
-subject: repo:<owner>/<new-repo>:environment:acceptance
-subject: repo:<owner>/<new-repo>:environment:production
+Use .agents/workflows/new-project-onboarding.md to create a new project from
+this template. Pause for human approval before paid subscriptions, registrar
+changes, production DNS, secrets, or production deployment.
 ```
 
-The app registration values become:
+Give the agent:
 
-| GitHub secret | Azure value |
+| Input | Example |
 | --- | --- |
-| `AZURE_CLIENT_ID` | Application/client ID |
-| `AZURE_TENANT_ID` | Directory/tenant ID |
-| `AZURE_SUBSCRIPTION_ID` | Subscription ID |
+| Repository owner | `example-org` |
+| Repository name | `example-app` |
+| Root domain | `example.com` |
+| Azure subscription ID | `00000000-0000-0000-0000-000000000000` |
+| Azure tenant ID | `00000000-0000-0000-0000-000000000000` |
+| CIAM tenant/client values | project-specific |
 
-The workflow creates project resources later. Do not manually create the
-resource group, Static Web App, Cosmos account, Log Analytics workspace,
-Application Insights resource, or managed identity unless debugging
-provisioning.
+The agent can clone, rename, repoint Git, verify tools, run CI, update docs,
+configure GitHub environments, register Azure providers, create deployment
+identity, dispatch provisioning, and dispatch deployments once authenticated.
 
-The CIAM / Entra External ID tenant and app registration are separate identity
-prerequisites. Create them before provisioning and keep their tenant/client
-values for GitHub environment secrets.
+The human must approve or perform:
 
-### 7. Configure GitHub Environments
+- paid Azure subscription and billing decisions
+- domain purchase or registrar access
+- browser logins and MFA
+- registrar nameserver changes when no safe API access is configured
+- secret entry or rotation
+- production DNS and production deployment approval
 
-Create two GitHub environments:
+Manual details and exact commands live in
+`.agents/workflows/new-project-onboarding.md`. Infrastructure contracts live in
+`INFRASTRUCTURE.md`.
 
-- `acceptance`
-- `production`
-
-Add these secrets to each environment:
-
-| Secret | Purpose |
-| --- | --- |
-| `AZURE_CLIENT_ID` | Federated Azure deployment identity client ID |
-| `AZURE_TENANT_ID` | Azure tenant ID for OIDC login |
-| `AZURE_SUBSCRIPTION_ID` | Azure subscription ID |
-| `CIAM_TENANT_ID` | External identity tenant ID |
-| `CIAM_TENANT_NAME` | External identity tenant name |
-| `CIAM_CLIENT_ID` | External identity app registration client ID |
-| `CIAM_CLIENT_SECRET` | External identity app registration client secret |
-
-Optional variable:
-
-| Variable | Purpose |
-| --- | --- |
-| `APP_NAME` | Overrides the repository-derived Azure resource name prefix |
-
-The Azure identity behind `AZURE_CLIENT_ID` must have a federated credential for
-the GitHub repository and permission to create/update the target resource
-groups.
-
-### 8. Provision Azure
-
-In GitHub Actions, run `Provision Azure` for `acceptance` first. The workflow
-creates:
-
-- resource group
-- Azure Static Web App
-- Cosmos DB for NoSQL
-- Log Analytics
-- Application Insights
-- user-assigned managed identity
-- Static Web App application settings
-
-After acceptance succeeds, run the same workflow for `production`.
-
-### 9. Deploy
-
-In GitHub Actions, run `Deploy Static Web App` for `acceptance`.
-
-The deploy workflow builds once in CI, downloads the immutable `dist/`
-artifact, reads the Static Web App deployment token from Azure, and uploads the
-prebuilt artifact with platform builds disabled.
-
-After acceptance is verified, run `Deploy Static Web App` for `production`.
-
-### 10. Continue Development
+### Continue Development
 
 - Replace placeholder content in `html/index.html`.
 - Add styles in `css/site.css`.

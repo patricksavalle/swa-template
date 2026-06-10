@@ -14,6 +14,7 @@ const requiredPaths = [
   "swa-cli.config.json",
   "tsconfig.json",
   "INFRASTRUCTURE.md",
+  ".agents/workflows/new-project-onboarding.md",
   "docs/architecture.md",
   "docs/decisions/0001-template-boundaries.md",
   "docs/decisions/0002-stack-baseline.md",

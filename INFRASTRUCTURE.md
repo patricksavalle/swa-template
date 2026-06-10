@@ -25,6 +25,12 @@ Azure tenant / subscription
 External prerequisite
 └── CIAM / Entra External ID tenant and app registration
     └── Values supplied through GitHub environment secrets
+
+External DNS
+└── Cloudflare zone: <root-domain>
+    ├── Production domain: <root-domain>
+    ├── Production www domain: www.<root-domain>
+    └── Acceptance domain: acceptance.<root-domain>
 ```
 
 `<app-name>` is derived from the final cloned repository name unless the GitHub
@@ -116,6 +122,76 @@ to environment suffix, Static Web App SKU, and telemetry retention.
 
 Production deployment should happen only after the same commit has passed CI
 and the acceptance environment has been verified.
+
+---
+
+## Domains And Cloudflare DNS
+
+Cloudflare is the canonical DNS provider for public project domains.
+
+Record the real domains for each project here before production launch:
+
+| Role | Domain | Environment | Azure Static Web App |
+| --- | --- | --- | --- |
+| Production apex | `<root-domain>` | `production` | `swa-<app-name>-prd` |
+| Production www | `www.<root-domain>` | `production` | `swa-<app-name>-prd` |
+| Acceptance | `acceptance.<root-domain>` | `acceptance` | `swa-<app-name>-acc` |
+
+Default DNS records:
+
+| Type | Name | Target | Proxy | Notes |
+| --- | --- | --- | --- | --- |
+| `CNAME` | `@` | `<production-swa-default-hostname>` | Proxied after Azure validation | Uses Cloudflare CNAME flattening for the apex domain. |
+| `CNAME` | `www` | `<production-swa-default-hostname>` | Proxied after Azure validation | Add the custom domain in Azure SWA before relying on traffic. |
+| `CNAME` | `acceptance` | `<acceptance-swa-default-hostname>` | Proxied after Azure validation | Acceptance must remain separate from production. |
+| `TXT` | Azure-provided host | Azure-provided value | DNS only | Temporary or retained validation record, depending on Azure's generated instructions. |
+
+`<*-swa-default-hostname>` is the default hostname returned by Azure Static Web
+Apps, for example from:
+
+```bash
+az staticwebapp show \
+  --resource-group "rg-<app-name>-<env-suffix>" \
+  --name "swa-<app-name>-<env-suffix>" \
+  --query defaultHostname \
+  --output tsv
+```
+
+### Custom Domain Setup Order
+
+1. Provision the target Static Web App.
+2. Resolve the SWA default hostname.
+3. Add the Cloudflare DNS record as DNS-only or proxied according to the table.
+4. In Azure Static Web Apps, add the custom domain to the matching environment.
+5. Add any Azure-provided validation `TXT` record in Cloudflare as DNS-only.
+6. Wait for Azure domain validation and managed certificate provisioning.
+7. Switch web-serving `CNAME` records to proxied when validation is complete.
+8. Verify HTTPS for every public domain.
+
+Azure Static Web Apps validates subdomains with CNAME records. Apex domains
+require ownership validation first; with Cloudflare, use CNAME flattening for
+the apex target instead of an `A` record so the app keeps Static Web Apps'
+global distribution behavior.
+
+### Cloudflare Zone Defaults
+
+Use these defaults unless a project-specific ADR records a different choice:
+
+| Setting | Value |
+| --- | --- |
+| DNS provider | Cloudflare full-zone setup |
+| SSL/TLS mode | Full (strict) |
+| Minimum TLS version | TLS 1.2 or higher |
+| Always Use HTTPS | Enabled |
+| Automatic HTTPS Rewrites | Enabled |
+| DNSSEC | Enabled after nameserver migration is stable |
+| Web traffic records | Proxied after Azure custom-domain validation |
+| Validation records | DNS only |
+| TTL | Auto for proxied records; default TTL for DNS-only validation records |
+
+Cloudflare configuration is not currently provisioned by GitHub Actions in this
+template. Treat this section as the source of truth for manual DNS setup or for
+a future Wrangler/Terraform automation layer.
 
 ---
 

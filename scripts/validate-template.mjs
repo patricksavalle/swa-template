@@ -64,6 +64,7 @@ const expectedSkills = [
   "rest-api-review",
   "skill-creation",
   "structural-simplification",
+  "technical-design",
   "swa-authenticate",
   "whitepapers",
   "system-optimization"

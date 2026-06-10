@@ -12,6 +12,7 @@ does not fit.
 | `architecture-guidelines` | First-principles architecture discipline. |
 | `geometric-architecture` | Component placement and dependency graph constraints. |
 | `structural-simplification` | Complexity comparison for refactors and structure changes. |
+| `technical-design` | Document and verify implemented module boundaries and data flow. |
 | `defect-shift-left` | Place checks at the earliest stage that can catch defects. |
 | `architecture-as-code` | Stack-agnostic pattern for executable architecture rules. |
 | `architecture-as-code-javascript` | JavaScript and TypeScript architecture-rule implementation. |

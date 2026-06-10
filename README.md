@@ -36,14 +36,15 @@ swa-template/
 - `ts/` holds TypeScript source in infrastructure, business logic, and user
   interface tiers.
 - `tests/` holds cross-boundary tests that do not belong to one tier.
-- `docs/` holds architecture, infrastructure, and operational decisions.
+- `docs/` holds supporting architecture, linting, seed-secret, and skill docs.
 - `scripts/` holds validation, build, release, and local automation.
 
 ## Start Here
 
 1. Edit 11ty pages in `html/`.
 2. Replace placeholder files in `css/`, `img/`, `api/`, and `ts/`.
-3. Fill in `docs/infrastructure.md` with the target cloud resources.
+3. Review `INFRASTRUCTURE.md` before changing Azure resources or project
+   structure.
 4. Review `docs/skills.md` and keep only the skills that fit the project.
 5. Keep or tighten the generic lint rules in `eslint.architecture.mjs`.
 6. Wire `.github/workflows/deploy-static-web-app.yml` to the chosen hosting

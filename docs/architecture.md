@@ -9,7 +9,7 @@ This template separates the project into a small number of durable boundaries:
 - `img/` for image and media assets.
 - `api/` for optional serverless endpoints.
 - `ts/` for TypeScript source.
-- `docs/infrastructure.md` for deployable platform planning.
+- `INFRASTRUCTURE.md` for deployable platform and project-structure decisions.
 - `tests/` for cross-boundary verification.
 
 ## Dependency Direction

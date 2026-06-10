@@ -2,16 +2,20 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 const infrastructure = await readFile(
-  path.join(process.cwd(), "docs/infrastructure.md"),
+  path.join(process.cwd(), "INFRASTRUCTURE.md"),
   "utf8"
 );
 
 const requiredSections = [
-  "## Target Shape",
+  "## Infrastructure Hierarchy",
+  "## Project Structure",
   "## Environments",
-  "## Resource Inventory",
-  "## Deployment Principles",
-  "## Open Decisions"
+  "## Azure Resources",
+  "## GitHub Environments",
+  "## GitHub Workflows",
+  "## Seed Settings",
+  "## Manual Verification",
+  "## Known Limitations"
 ];
 
 const missing = requiredSections.filter((section) => !infrastructure.includes(section));

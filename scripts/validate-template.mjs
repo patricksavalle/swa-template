@@ -105,6 +105,10 @@ const forbiddenTerms = [
   ["verifiable", "credential"].join(" ")
 ];
 
+const allowedReferences = [
+  "https://github.com/l-gevity/l-gevity-skills"
+];
+
 for (const relativePath of requiredPaths) {
   await access(path.join(root, relativePath));
 }
@@ -192,7 +196,10 @@ for (const file of textFiles) {
   combinedParts.push(await readFile(file, "utf8"));
 }
 
-const combined = combinedParts.join("\n");
+let combined = combinedParts.join("\n");
+for (const reference of allowedReferences) {
+  combined = combined.replaceAll(reference, "");
+}
 
 const leakedTerms = forbiddenTerms.filter((term) => combined.includes(term));
 if (leakedTerms.length > 0) {

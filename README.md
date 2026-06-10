@@ -74,8 +74,8 @@ Azure workflows included:
 - `Seed Azure App Settings` reapplies CIAM and Cosmos seed settings.
 - `Deploy Static Web App` deploys the prebuilt `dist/` artifact.
 
-The template example uses `l-gevity` resource names. Rename
-`infrastructure/environments/*.bicepparam` after cloning for another project.
+Azure resource names are derived from the final cloned repository name by
+default. Set the GitHub variable `APP_NAME` to override the derived name.
 
 ## Agent Guidance
 

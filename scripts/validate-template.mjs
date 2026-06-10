@@ -59,7 +59,15 @@ const expectedSkills = [
 
 const forbiddenTerms = [
   ["A", "L", "C", "H", "E", "M", "Y", ""].join("."),
-  ["alchemy", "overview"].join("-")
+  ["alchemy", "overview"].join("-"),
+  ["L", "GEVITY"].join("-"),
+  ["l", "gevity"].join("-"),
+  ["lg", "evity"].join(""),
+  ["bio", "metric"].join(""),
+  ["bio", "metrics"].join(""),
+  ["eu", "di"].join(""),
+  ["wal", "let"].join(""),
+  ["verifiable", "credential"].join(" ")
 ];
 
 for (const relativePath of requiredPaths) {

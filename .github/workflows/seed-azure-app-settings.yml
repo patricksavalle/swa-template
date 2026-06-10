@@ -39,18 +39,27 @@ jobs:
         id: names
         shell: bash
         run: |
+          raw="${{ vars.APP_NAME }}"
+          if [ -z "$raw" ]; then raw="${GITHUB_REPOSITORY#*/}"; fi
+          app_name="$(echo "$raw" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed 's/[^a-z0-9-]/-/g' \
+            | sed 's/--*/-/g' \
+            | sed 's/^-//;s/-$//')"
+
           case "${{ inputs.environment }}" in
             acceptance)
-              echo "resource_group=rg-l-gevity-acc" >> "$GITHUB_OUTPUT"
-              echo "swa_name=swa-l-gevity-acc" >> "$GITHUB_OUTPUT"
-              echo "cosmos_name=cosmos-l-gevity-acc" >> "$GITHUB_OUTPUT"
+              suffix="acc"
               ;;
             production)
-              echo "resource_group=rg-l-gevity-prd" >> "$GITHUB_OUTPUT"
-              echo "swa_name=swa-l-gevity-prd" >> "$GITHUB_OUTPUT"
-              echo "cosmos_name=cosmos-l-gevity-prd" >> "$GITHUB_OUTPUT"
+              suffix="prd"
               ;;
           esac
+
+          resource_prefix="${app_name}-${suffix}"
+          echo "resource_group=rg-${resource_prefix}" >> "$GITHUB_OUTPUT"
+          echo "swa_name=swa-${resource_prefix}" >> "$GITHUB_OUTPUT"
+          echo "cosmos_name=cosmos-${resource_prefix}" >> "$GITHUB_OUTPUT"
 
       - name: Seed application settings
         shell: bash

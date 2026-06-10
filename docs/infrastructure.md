@@ -2,9 +2,9 @@
 
 ## Purpose
 
-Define the Azure platform for the instantiated project. The template example is
-`l-gevity`; after cloning, rename the project by changing the environment
-parameter files under `infrastructure/environments/`.
+Define the Azure platform for the instantiated project. By default, workflows
+derive the project name from the final cloned repository name. Set the GitHub
+variable `APP_NAME` to override the derived name.
 
 ## Target Shape
 
@@ -35,7 +35,7 @@ health check and rollback path.
 
 | Resource | Purpose | Owner | Lifecycle | Notes |
 | --- | --- | --- | --- | --- |
-| Azure Static Web App | Serves frontend and optional API | Azure | Per environment | `swa-l-gevity-acc`, `swa-l-gevity-prd` |
+| Azure Static Web App | Serves frontend and optional API | Azure | Per environment | Name derived from repository or `APP_NAME` |
 | Cosmos DB for NoSQL | Application data | Azure | Per environment | Same database/container shape |
 | CIAM tenant/app registration | Customer identity | Entra External ID / CIAM | Seed prerequisite | IDs/secrets supplied by GitHub environment |
 | Log Analytics | Central telemetry workspace | Azure Monitor | Per environment | 30 days acceptance, 90 days production |
@@ -84,7 +84,6 @@ The source directories are intentionally flatter than many framework templates:
 
 ## Open Decisions
 
-- Whether the instantiated project keeps the `l-gevity` example names.
 - API runtime and deployment unit.
 - Domain, DNS, and certificate ownership.
 - Monitoring and alert thresholds.

@@ -2,8 +2,9 @@
 
 Azure-specific infrastructure for the template.
 
-The example project name is `l-gevity`. After cloning the template, override
-`projectName` and `resourceNamePrefix` in the environment parameter files.
+After cloning the template, the GitHub workflows derive Azure resource names
+from the final repository name by default. Set `APP_NAME` as a GitHub variable
+to override that default.
 
 ## Environments
 

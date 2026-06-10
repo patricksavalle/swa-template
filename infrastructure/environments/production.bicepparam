@@ -1,11 +1,11 @@
 using '../main.bicep'
 
-param projectName = 'l-gevity'
+param projectName = 'swa-template'
 param environmentName = 'production'
 param location = 'westeurope'
-param resourceNamePrefix = 'l-gevity-prd'
+param resourceNamePrefix = 'swa-template-prd'
 param staticWebAppSkuName = 'Standard'
-param cosmosDatabaseName = 'lgevity'
+param cosmosDatabaseName = 'app'
 param cosmosContainers = [
   {
     name: 'users'
@@ -21,6 +21,6 @@ param cosmosContainers = [
   }
 ]
 param tags = {
-  project: 'l-gevity'
+  project: 'swa-template'
   environment: 'production'
 }

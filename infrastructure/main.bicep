@@ -1,7 +1,7 @@
 targetScope = 'resourceGroup'
 
-@description('Project name. The template example uses l-gevity.')
-param projectName string = 'l-gevity'
+@description('Project name.')
+param projectName string = 'swa-template'
 
 @allowed([
   'acceptance'

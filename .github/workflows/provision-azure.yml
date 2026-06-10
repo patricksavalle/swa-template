@@ -35,14 +35,29 @@ jobs:
         id: names
         shell: bash
         run: |
+          raw="${{ vars.APP_NAME }}"
+          if [ -z "$raw" ]; then raw="${GITHUB_REPOSITORY#*/}"; fi
+          app_name="$(echo "$raw" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed 's/[^a-z0-9-]/-/g' \
+            | sed 's/--*/-/g' \
+            | sed 's/^-//;s/-$//')"
+
           case "${{ inputs.environment }}" in
             acceptance)
-              echo "resource_group=rg-l-gevity-acc" >> "$GITHUB_OUTPUT"
+              suffix="acc"
               ;;
             production)
-              echo "resource_group=rg-l-gevity-prd" >> "$GITHUB_OUTPUT"
+              suffix="prd"
               ;;
           esac
+
+          resource_prefix="${app_name}-${suffix}"
+          echo "app_name=${app_name}" >> "$GITHUB_OUTPUT"
+          echo "resource_prefix=${resource_prefix}" >> "$GITHUB_OUTPUT"
+          echo "resource_group=rg-${resource_prefix}" >> "$GITHUB_OUTPUT"
+          echo "swa_name=swa-${resource_prefix}" >> "$GITHUB_OUTPUT"
+          echo "cosmos_name=cosmos-${resource_prefix}" >> "$GITHUB_OUTPUT"
 
       - name: Azure login
         uses: azure/login@v2
@@ -66,6 +81,9 @@ jobs:
             --template-file infrastructure/main.bicep \
             --parameters infrastructure/environments/${{ inputs.environment }}.bicepparam \
             --parameters \
+              projectName="${{ steps.names.outputs.app_name }}" \
+              resourceNamePrefix="${{ steps.names.outputs.resource_prefix }}" \
+              cosmosDatabaseName="app" \
               ciamTenantId="${{ secrets.CIAM_TENANT_ID }}" \
               ciamTenantName="${{ secrets.CIAM_TENANT_NAME }}" \
               ciamClientId="${{ secrets.CIAM_CLIENT_ID }}"
@@ -73,20 +91,9 @@ jobs:
       - name: Seed application settings
         shell: bash
         run: |
-          case "${{ inputs.environment }}" in
-            acceptance)
-              swa_name="swa-l-gevity-acc"
-              cosmos_name="cosmos-l-gevity-acc"
-              ;;
-            production)
-              swa_name="swa-l-gevity-prd"
-              cosmos_name="cosmos-l-gevity-prd"
-              ;;
-          esac
-
           cosmos_connection_string="$(az cosmosdb keys list \
             --resource-group "${{ steps.names.outputs.resource_group }}" \
-            --name "$cosmos_name" \
+            --name "${{ steps.names.outputs.cosmos_name }}" \
             --type connection-strings \
             --query 'connectionStrings[0].connectionString' \
             --output tsv)"
@@ -96,7 +103,7 @@ jobs:
 
           az staticwebapp appsettings set \
             --resource-group "${{ steps.names.outputs.resource_group }}" \
-            --name "$swa_name" \
+            --name "${{ steps.names.outputs.swa_name }}" \
             --setting-names \
               CIAM_CLIENT_SECRET="${{ secrets.CIAM_CLIENT_SECRET }}" \
               COSMOS_CONNECTION_STRING="$cosmos_connection_string"

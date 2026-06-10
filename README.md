@@ -194,7 +194,46 @@ git push -u origin main
 GitHub Actions will run `CI`, which validates the template, lints, typechecks,
 builds `dist/`, and runs the placeholder test.
 
-### 5. Create Azure Subscription And Deployment Identity
+### 5. Register Domain And Move DNS To Cloudflare
+
+Register or select the root domain before production launch.
+
+Domain setup:
+
+1. Buy or select `<root-domain>` at a domain registrar.
+2. Create or sign in to a [Cloudflare](https://dash.cloudflare.com/) account.
+3. Add `<root-domain>` as a Cloudflare zone.
+4. Review Cloudflare's imported DNS records before changing nameservers.
+5. In Cloudflare, copy the two assigned authoritative nameservers.
+6. At the domain registrar, replace the current nameservers with the two
+   Cloudflare nameservers.
+7. If DNSSEC is active at the registrar, disable it before changing
+   nameservers.
+8. Wait until Cloudflare marks the zone active.
+9. Re-enable DNSSEC from Cloudflare after the zone is active.
+
+Cloudflare becomes the canonical DNS control plane for the project after the
+nameserver switch. Record the final domains and DNS records in
+`INFRASTRUCTURE.md`.
+
+Expected project domains:
+
+| Role | Domain |
+| --- | --- |
+| Production apex | `<root-domain>` |
+| Production www | `www.<root-domain>` |
+| Acceptance | `acceptance.<root-domain>` |
+
+Do not add Azure Static Web Apps custom-domain DNS records until the matching
+Azure Static Web App exists. The DNS target is the SWA default hostname created
+by the provisioning workflow.
+
+References:
+
+- [Cloudflare full setup](https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/)
+- [Cloudflare nameserver updates](https://developers.cloudflare.com/dns/nameservers/update-nameservers/)
+
+### 6. Create Azure Subscription And Deployment Identity
 
 Create or select the Azure subscription before configuring GitHub.
 
@@ -265,7 +304,7 @@ The CIAM / Entra External ID tenant and app registration are separate identity
 prerequisites. Create them before provisioning and keep their tenant/client
 values for GitHub environment secrets.
 
-### 6. Configure GitHub Environments
+### 7. Configure GitHub Environments
 
 Create two GitHub environments:
 
@@ -294,7 +333,7 @@ The Azure identity behind `AZURE_CLIENT_ID` must have a federated credential for
 the GitHub repository and permission to create/update the target resource
 groups.
 
-### 7. Provision Azure
+### 8. Provision Azure
 
 In GitHub Actions, run `Provision Azure` for `acceptance` first. The workflow
 creates:
@@ -309,7 +348,7 @@ creates:
 
 After acceptance succeeds, run the same workflow for `production`.
 
-### 8. Deploy
+### 9. Deploy
 
 In GitHub Actions, run `Deploy Static Web App` for `acceptance`.
 
@@ -319,7 +358,7 @@ prebuilt artifact with platform builds disabled.
 
 After acceptance is verified, run `Deploy Static Web App` for `production`.
 
-### 9. Continue Development
+### 10. Continue Development
 
 - Replace placeholder content in `html/index.html`.
 - Add styles in `css/site.css`.

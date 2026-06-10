@@ -102,7 +102,7 @@ const sharedGlobals = {
 
 export default [
   {
-    ignores: ["dist/**", "node_modules/**", "coverage/**", ".swa/**"]
+    ignores: ["**/dist/**", "node_modules/**", "coverage/**", ".swa/**"]
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

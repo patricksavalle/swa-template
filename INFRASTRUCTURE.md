@@ -14,7 +14,7 @@ Azure tenant / subscription
 └── Resource group: rg-<app-name>-<env-suffix>
     ├── Azure Static Web App: swa-<app-name>-<env-suffix>
     │   ├── Static artifact: dist/
-    │   ├── Optional API source when `SWA_API_LOCATION` is set
+    │   ├── Optional prebuilt TypeScript API artifact when `SWA_API_LOCATION` is set
     │   └── App settings seeded by GitHub workflows
     ├── Cosmos DB for NoSQL: cosmos-<app-name>-<env-suffix>
     │   └── SQL database: app
@@ -52,7 +52,7 @@ Environment suffixes:
 .
 ├── .agents/skills/                 Agent skills committed with the template
 ├── .github/workflows/              CI, provision, seed, and deploy workflows
-├── api/                            Optional SWA API / Azure Functions boundary
+├── api/                            Optional TypeScript Azure Functions boundary
 ├── css/                            Static styles copied by 11ty
 ├── docs/                           Supporting decisions and topic docs
 ├── html/                           11ty input directory
@@ -92,7 +92,7 @@ SWA locations:
 | SWA setting | Value | Meaning |
 | --- | --- | --- |
 | `app_location` | `dist` during deploy | Prebuilt static artifact |
-| `api_location` | empty by default | Set GitHub variable `SWA_API_LOCATION=api` after adding a real API runtime |
+| `api_location` | empty by default | Set GitHub variable `SWA_API_LOCATION=api` when deploying the included TypeScript API |
 | `output_location` | empty during deploy | Build already happened in CI |
 
 Local SWA CLI config keeps `appLocation` as `.` because it runs the configured
@@ -258,7 +258,7 @@ Each environment stores the values used by workflows for that environment.
 | Variable | Purpose |
 | --- | --- |
 | `APP_NAME` | Overrides the repository-derived Azure name prefix |
-| `SWA_API_LOCATION` | Optional API source path. Leave unset for static-only projects; set to `api` only after adding a real Azure Functions-compatible runtime. |
+| `SWA_API_LOCATION` | Optional API source path. Leave unset for static-only projects; set to `api` when deploying the included TypeScript Azure Functions API. |
 
 No Key Vault is used in this template. Seed secrets live in GitHub
 environments and are written into Azure Static Web App application settings by
@@ -361,8 +361,9 @@ Application telemetry is workspace-based:
 - The Application Insights connection string is exposed to the app through SWA
   app settings.
 
-The template does not define alert rules or dashboards yet. Add them as Bicep
-modules when thresholds and ownership are known.
+The template includes an optional failed-request scheduled-query alert. Set
+`alertEmail` in the environment parameter file to deploy an action group and
+alert. Leave it empty to skip alert resources.
 
 ---
 
@@ -411,10 +412,10 @@ Run these checks after provisioning or changing infrastructure.
 2. No Key Vault is used; seed secrets are stored in GitHub environments.
 3. Cloudflare DNS automation requires a short-lived API token provided during
    onboarding.
-4. Alert rules, dashboards, and SLO thresholds are not included until the
-   instantiated project defines ownership and thresholds.
-5. The optional `api/` boundary is present, but no concrete API runtime is
-   selected by the template.
+4. Dashboards and SLO thresholds are not included until the instantiated
+   project defines ownership and thresholds.
+5. The optional `api/` boundary includes a TypeScript health endpoint, but it is
+   not deployed unless `SWA_API_LOCATION=api` is set.
 
 ---
 

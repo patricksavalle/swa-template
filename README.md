@@ -134,7 +134,7 @@ swa-template/
 - `html/` holds 11ty pages, includes, layouts, and data.
 - `css/` holds stylesheets, design tokens, and static styling assets.
 - `img/` holds images and media assets.
-- `api/` is the optional Azure Functions or serverless API boundary.
+- `api/` is the optional TypeScript Azure Functions API boundary.
 - `ts/` holds TypeScript source in infrastructure, business logic, and user
   interface tiers.
 - `tests/` holds cross-boundary tests that do not belong to one tier.
@@ -185,11 +185,11 @@ Manual details and exact commands live in
 
 - Replace placeholder content in `html/index.html`.
 - Add styles in `css/site.css`.
-- Add browser code under `ts/userinterface/`.
+- Add browser TypeScript under `ts/userinterface/`.
 - Add deterministic business rules under `ts/businesslogic/`.
 - Add adapters/config loaders under `ts/infrastructure/`.
-- Add Azure Functions endpoints under `api/` only when backend endpoints are
-  needed.
+- Add TypeScript Azure Functions endpoints under `api/src/` only when backend
+  endpoints are needed.
 - Replace `scripts/test-placeholder.mjs` with real tests once application
   behavior exists.
 
@@ -211,8 +211,8 @@ api_location: ''
 output_location: ''
 ```
 
-Set the GitHub variable `SWA_API_LOCATION=api` only after adding a real Azure
-Functions-compatible API runtime.
+Set the GitHub variable `SWA_API_LOCATION=api` only when the project should
+deploy the included TypeScript Azure Functions API.
 
 The build renders `html/` with 11ty, copies `css/`, `img/`, and
 `staticwebapp.config.json` into `dist/`, then compiles `ts/` into `dist/ts/`.
@@ -220,8 +220,10 @@ The build renders `html/` with 11ty, copies `css/`, `img/`, and
 ## CI/CD
 
 The default CI workflow validates the template, builds the 11ty site artifact,
-checks ESLint and TypeScript, and uploads the `dist/` artifact. Deployment and
-provisioning are Azure-specific and use GitHub OIDC for Azure login.
+checks ESLint and TypeScript, validates rendered HTML, runs a production
+dependency audit, runs a secret scan, and uploads the `dist/` and API artifacts.
+Deployment and provisioning are Azure-specific and use GitHub OIDC for Azure
+login.
 
 Azure workflows included:
 

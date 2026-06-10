@@ -13,20 +13,24 @@
     "validate:swa-config": "node scripts/validate-swa-config.mjs staticwebapp.config.json",
     "dns:cloudflare": "node scripts/configure-cloudflare-dns.mjs",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p api/tsconfig.json",
     "clean": "node scripts/clean-dist.mjs",
-    "build": "npm run clean && eleventy --config=eleventy.config.js && tsc --project tsconfig.json",
+    "build:api": "tsc --project api/tsconfig.json",
+    "build": "npm run clean && eleventy --config=eleventy.config.js && tsc --project tsconfig.json && npm run build:api",
     "dev": "eleventy --config=eleventy.config.js --serve",
+    "check:html": "htmlhint \"dist/**/*.html\"",
     "test": "node scripts/test-placeholder.mjs",
-    "ci": "npm run validate && npm run lint && npm run typecheck && npm run build && npm test"
+    "ci": "npm run validate && npm run lint && npm run typecheck && npm run build && npm run check:html && npm test"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.6",
     "@eslint/js": "^10.0.1",
+    "@types/node": "^25.9.2",
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
     "eslint": "^10.4.1",
     "eslint-plugin-boundaries": "^6.0.2",
+    "htmlhint": "^1.9.2",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.0"
   }

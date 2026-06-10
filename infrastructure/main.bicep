@@ -46,6 +46,9 @@ param cosmosContainers array = [
 @description('Common resource tags.')
 param tags object = {}
 
+@description('Email receiver for optional platform alerts. Leave empty to skip alert resources.')
+param alertEmail string = ''
+
 var normalizedTags = union(tags, {
   project: projectName
   environment: environmentName
@@ -57,6 +60,9 @@ var cosmosAccountName = 'cosmos-${resourceNamePrefix}'
 var logAnalyticsName = 'law-${resourceNamePrefix}'
 var appInsightsName = 'appi-${resourceNamePrefix}'
 var identityName = 'id-${resourceNamePrefix}'
+var actionGroupName = 'ag-${resourceNamePrefix}'
+var availabilityAlertName = 'alert-${resourceNamePrefix}-availability'
+var alertingEnabled = !empty(alertEmail)
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: logAnalyticsName
@@ -160,6 +166,59 @@ resource staticWebAppSettings 'Microsoft.Web/staticSites/config@2023-12-01' = {
     COSMOS_ENDPOINT: cosmosAccount.properties.documentEndpoint
     COSMOS_DATABASE_NAME: cosmosDatabaseName
     APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString
+  }
+}
+
+resource actionGroup 'Microsoft.Insights/actionGroups@2023-01-01' = if (alertingEnabled) {
+  name: actionGroupName
+  location: 'global'
+  tags: normalizedTags
+  properties: {
+    groupShortName: take(replace(resourceNamePrefix, '-', ''), 12)
+    enabled: true
+    emailReceivers: [
+      {
+        name: 'primary'
+        emailAddress: alertEmail
+        useCommonAlertSchema: true
+      }
+    ]
+  }
+}
+
+resource failedRequestAlert 'Microsoft.Insights/scheduledQueryRules@2023-12-01' = if (alertingEnabled) {
+  name: availabilityAlertName
+  location: location
+  tags: normalizedTags
+  properties: {
+    displayName: 'Failed requests - ${resourceNamePrefix}'
+    description: 'Alerts when Application Insights records failed requests in the last five minutes.'
+    enabled: true
+    severity: environmentName == 'production' ? 2 : 3
+    scopes: [
+      logAnalytics.id
+    ]
+    evaluationFrequency: 'PT5M'
+    windowSize: 'PT5M'
+    criteria: {
+      allOf: [
+        {
+          query: 'AppRequests | where Success == false'
+          timeAggregation: 'Count'
+          operator: 'GreaterThan'
+          threshold: 0
+          failingPeriods: {
+            numberOfEvaluationPeriods: 1
+            minFailingPeriodsToAlert: 1
+          }
+        }
+      ]
+    }
+    actions: {
+      actionGroups: [
+        actionGroup.id
+      ]
+    }
   }
 }
 

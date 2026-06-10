@@ -17,11 +17,11 @@ Use this initial stack:
 
 | Area | Decision |
 | --- | --- |
-| Language | TypeScript for application source; JavaScript/ES modules for build scripts and configuration |
+| Language | TypeScript for application and API source; JavaScript/ES modules only for build scripts and configuration |
 | Static rendering | 11ty renders `html/` into `dist/` |
 | Styling | Plain CSS in `css/`; no inline styles |
-| UI runtime | Browser-native JavaScript; no React, Vue, Angular, Svelte, or similar UI framework |
-| Serverless API | Optional Azure Functions-compatible boundary in `api/` |
+| UI runtime | Browser-native TypeScript compiled to JavaScript; no React, Vue, Angular, Svelte, or similar UI framework |
+| Serverless API | Optional TypeScript Azure Functions-compatible boundary in `api/` |
 | Platform | Azure Static Web Apps |
 | Infrastructure | Bicep in `infrastructure/` |
 | CI/CD | GitHub Actions with OIDC-based Azure login |
@@ -42,6 +42,7 @@ application stack decision.
 
 - A cloned repository can run CI before project-specific code exists.
 - Projects can add a UI framework only through a new architecture decision.
-- Runtime JavaScript remains small and progressively enhances static output.
+- Runtime JavaScript is generated from TypeScript and remains small enough to
+  progressively enhance static output.
 - Provider-specific deployment details stay in `INFRASTRUCTURE.md`.
 - Stack changes require both an ADR update and a living architecture update.

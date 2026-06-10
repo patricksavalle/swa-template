@@ -24,3 +24,4 @@ param tags = {
   project: 'swa-template'
   environment: 'acceptance'
 }
+param alertEmail = ''

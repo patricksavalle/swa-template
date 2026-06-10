@@ -96,6 +96,8 @@ Update:
 - `docs/decisions/0002-stack-baseline.md` only if the stack changes
 - `docs/architecture.md` if the module map changes
 - `INFRASTRUCTURE.md` with real domains and environment names
+- `infrastructure/environments/*.bicepparam` with `alertEmail` when alert
+  email notifications are wanted
 
 ### 3. GitHub Repository And Environments
 
@@ -193,6 +195,9 @@ Store these values as GitHub environment secrets:
 - `CIAM_TENANT_NAME`
 - `CIAM_CLIENT_ID`
 - `CIAM_CLIENT_SECRET`
+
+Set `SWA_API_LOCATION=api` only when the project wants to deploy the included
+TypeScript Azure Functions API boundary.
 
 ### 6. Provision
 

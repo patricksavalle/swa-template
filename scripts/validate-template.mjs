@@ -23,6 +23,7 @@ const requiredPaths = [
   "infrastructure/main.bicep",
   "infrastructure/environments/acceptance.bicepparam",
   "infrastructure/environments/production.bicepparam",
+  ".htmlhintrc",
   "scripts/clean-dist.mjs",
   "scripts/validate-template.mjs",
   "scripts/validate-swa-config.mjs",
@@ -30,9 +31,15 @@ const requiredPaths = [
   "scripts/test-placeholder.mjs",
   ".github/config/staticwebapp.schema.json",
   ".github/workflows/ci.yml",
+  ".github/workflows/deploy-static-web-app.yml",
   ".github/workflows/provision-azure.yml",
   ".github/workflows/seed-azure-app-settings.yml",
   ".agents/skills/architecture-guidelines/SKILL.md",
+  "api/package.json",
+  "api/host.json",
+  "api/tsconfig.json",
+  "api/health/function.json",
+  "api/src/health/index.ts",
   "api/README.md",
   "css/README.md",
   "css/site.css",
@@ -110,6 +117,43 @@ for (const skill of actualSkills) {
   await access(path.join(skillRoot, skill, "SKILL.md"));
 }
 
+const plainJavascriptSourceRoots = ["api/src", "ts"];
+const allowedPlainJavascriptSourceFiles = new Set(["eslint.architecture.mjs"]);
+
+async function collectPlainJavascriptSources(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const fullPath = path.join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      files.push(...await collectPlainJavascriptSources(fullPath));
+      continue;
+    }
+
+    const isPlainJavascript = /\.(mjs|js)$/i.test(entry.name);
+    if (isPlainJavascript && !allowedPlainJavascriptSourceFiles.has(entry.name)) {
+      files.push(path.relative(root, fullPath));
+    }
+  }
+
+  return files;
+}
+
+const plainJavascriptSources = [];
+for (const sourceRoot of plainJavascriptSourceRoots) {
+  plainJavascriptSources.push(
+    ...await collectPlainJavascriptSources(path.join(root, sourceRoot))
+  );
+}
+
+if (plainJavascriptSources.length > 0) {
+  throw new Error(
+    `Application and API source must be TypeScript. Plain JavaScript files found: ${plainJavascriptSources.join(", ")}`
+  );
+}
+
 async function collectTextFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const files = [];
@@ -126,7 +170,7 @@ async function collectTextFiles(directory) {
       continue;
     }
 
-    if (/\.(md|json|yml|yaml|mjs|js|ps1|sh|txt|bicep|bicepparam)$/i.test(entry.name) || entry.name === "AGENTS.md") {
+    if (/\.(md|json|yml|yaml|mjs|js|ts|html|css|ps1|sh|txt|bicep|bicepparam)$/i.test(entry.name) || entry.name === "AGENTS.md") {
       files.push(fullPath);
     }
   }

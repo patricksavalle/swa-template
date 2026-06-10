@@ -22,11 +22,11 @@ The initial stack decision is recorded in
 
 | Area | Current baseline |
 | --- | --- |
-| Language | TypeScript for app source; JavaScript ES modules for scripts/config |
+| Language | TypeScript for app and API source; JavaScript ES modules only for scripts/config |
 | Static rendering | 11ty renders `html/` to `dist/` |
 | Styling | Plain CSS in `css/`; no inline styles |
-| UI runtime | Browser-native JavaScript; no UI framework by default |
-| API | Optional Azure Functions-compatible boundary in `api/` |
+| UI runtime | Browser-native TypeScript compiled to JavaScript; no UI framework by default |
+| API | Optional TypeScript Azure Functions-compatible boundary in `api/` |
 | Platform | Azure Static Web Apps |
 | Infrastructure | Bicep in `infrastructure/` |
 | CI/CD | GitHub Actions with OIDC-based Azure login |
@@ -51,6 +51,9 @@ storage, or deployment implementations.
 
 Architecture rules are declared in `eslint.architecture.mjs` files and enforced
 by `npm run lint`. Static pages are rendered by 11ty from `html/` to `dist/`.
+The optional API boundary uses TypeScript source under `api/src/` and is bundled
+to `api/dist/` before deployment. It is deployed only when the GitHub variable
+`SWA_API_LOCATION` is set to `api`.
 
 ## Extension Rule
 

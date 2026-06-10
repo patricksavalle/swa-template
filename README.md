@@ -1,9 +1,12 @@
-# Azure Static Web Applicaton Template (for Agentic AI development)
+# Azure Static Web Application Template (for Agentic AI development)
 
-Generic starter template for an Azure Static Web App project with 11ty.
-
-This template uses 11ty as the static site generator and keeps the source
-layout deliberately flat.
+> You get an empty but complete Azure Static Web App starter: 11ty pages, plain
+> CSS, browser TypeScript, optional TypeScript API, validation scripts, CI,
+> deploy workflows, Bicep infrastructure, and agent-ready delivery guidance.
+> After onboarding and deployment, you have acceptance and production Azure
+> resources provisioned, app settings seeded, CI/CD wired through GitHub OIDC,
+> and a prebuilt static site deployed to Azure Static Web Apps on the default
+> hostname, with optional API and custom-domain/DNS steps available when needed.
 
 ## Workstation Prerequisites
 
@@ -31,7 +34,14 @@ Official install references:
 
 ```powershell
 winget install --id Git.Git -e
-winget install --id OpenJS.NodeJS.LTS -e
+winget install --id CoreyButler.NVMforWindows -e
+```
+
+Open a new PowerShell session so `nvm` is on `PATH`, then install Node.js 20:
+
+```powershell
+nvm install 20
+nvm use 20
 winget install --id GitHub.cli -e
 winget install --id Microsoft.AzureCLI -e
 npm install -g @azure/static-web-apps-cli
@@ -46,7 +56,8 @@ npm install -D wrangler@latest
 ### macOS
 
 ```bash
-brew install git node gh azure-cli
+brew install git node@20 gh azure-cli
+brew link --overwrite --force node@20
 npm install -g @azure/static-web-apps-cli
 ```
 
@@ -105,28 +116,6 @@ npx wrangler login
 
 `npx wrangler login` is only needed for projects that use Cloudflare.
 
-## Structure
-
-```text
-swa-template/
-├── .agents/
-│   ├── skills/
-│   └── workflows/
-├── .github/
-│   └── workflows/
-├── css/
-├── docs/
-├── html/
-├── img/
-├── api/
-├── scripts/
-├── ts/
-│   ├── infrastructure/
-│   ├── businesslogic/
-│   └── userinterface/
-└── tests/
-```
-
 ## Directory Roles
 
 - `.agents/skills/` holds the ready-to-use generic agent skills.
@@ -143,7 +132,8 @@ swa-template/
 
 ## Start Here
 
-Most setup work is agent-operable. Ask an agent:
+Most setup work is agent-operable. This README is the overview; the workflow
+below is the runbook to follow for a real project. Ask an agent:
 
 ```text
 Use .agents/workflows/new-project-onboarding.md to create a new project from
@@ -176,6 +166,10 @@ The human must approve or perform:
 - secret entry or rotation
 - short-lived Cloudflare API token creation and revocation
 - production DNS and production deployment approval
+
+The default Azure path expects CIAM / Entra External ID values and creates
+Cosmos resources even for the empty starter site. Custom domains and Cloudflare
+DNS are optional after the default Azure Static Web Apps hostname is deployed.
 
 Manual details and exact commands live in
 `.agents/workflows/new-project-onboarding.md`. Infrastructure contracts live in

@@ -1,0 +1,19 @@
+{
+  "scriptFile": "../dist/openapi/index.js",
+  "entryPoint": "openApi",
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "request",
+      "methods": ["get"],
+      "route": "openapi.json"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "$return"
+    }
+  ]
+}

@@ -182,8 +182,8 @@ Manual details and exact commands live in
 - Add browser TypeScript under `ts/userinterface/`.
 - Add deterministic business rules under `ts/businesslogic/`.
 - Add adapters/config loaders under `ts/infrastructure/`.
-- Add TypeScript Azure Functions endpoints under `api/src/` only when backend
-  endpoints are needed.
+- Add TypeScript Azure Functions endpoints under `api/src/` and document them
+  in `api/src/openapi/document.ts` only when backend endpoints are needed.
 - Add focused behavior tests under `tests/` as application behavior grows.
 
 ## SWA Locations
@@ -205,7 +205,8 @@ output_location: ''
 ```
 
 Set the GitHub variable `SWA_API_LOCATION=api` only when the project should
-deploy the included TypeScript Azure Functions API.
+deploy the included TypeScript Azure Functions API. When enabled, the API
+serves health at `/api/health` and its OpenAPI contract at `/api/openapi.json`.
 
 The build compiles Tailwind CSS into `css/site.css`, renders `html/` with 11ty,
 copies `css/`, `img/`, and `staticwebapp.config.json` into `dist/`, then

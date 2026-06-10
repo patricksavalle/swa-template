@@ -28,6 +28,7 @@ const requiredPaths = [
   ".htmlhintrc",
   "scripts/clean-dist.mjs",
   "scripts/run-tests.mjs",
+  "scripts/validate-api-contract.mjs",
   "scripts/validate-template.mjs",
   "scripts/validate-swa-config.mjs",
   "scripts/configure-cloudflare-dns.mjs",
@@ -42,7 +43,10 @@ const requiredPaths = [
   "api/host.json",
   "api/tsconfig.json",
   "api/health/function.json",
+  "api/openapi/function.json",
   "api/src/health/index.ts",
+  "api/src/openapi/document.ts",
+  "api/src/openapi/index.ts",
   "api/README.md",
   "css/README.md",
   "css/tailwind.css",
@@ -61,6 +65,7 @@ const requiredPaths = [
   "ts/userinterface/eslint.architecture.mjs",
   "tests/app-model.test.mjs",
   "tests/health.test.mjs",
+  "tests/openapi.test.mjs",
   "tests/README.md"
 ];
 

@@ -1,5 +1,5 @@
-import { formatAppStatus } from "../businesslogic";
-import { readRuntimeStatus } from "../infrastructure";
+import { formatAppStatus } from "../businesslogic/index.js";
+import { readRuntimeStatus } from "../infrastructure/index.js";
 
 const statusElement = document.querySelector("#app-status");
 

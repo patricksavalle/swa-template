@@ -5,7 +5,8 @@
       "appLocation": ".",
       "apiLocation": "api",
       "outputLocation": "dist",
-      "appBuildCommand": "npm run build"
+      "appBuildCommand": "npm run build",
+      "run": "npm run dev"
     }
   }
 }

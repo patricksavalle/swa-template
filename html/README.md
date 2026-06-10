@@ -1,6 +1,12 @@
 # HTML
 
-Static HTML entry points and document fragments.
+Eleventy source files.
 
-Keep files here framework-neutral unless the project intentionally adopts a
-frontend framework.
+This directory is the 11ty input directory. `html/index.html` renders to
+`dist/index.html`.
+
+Optional 11ty conventions:
+
+- `html/_includes/`
+- `html/_layouts/`
+- `html/_data/`

@@ -1,4 +1,4 @@
-import type { AppStatus } from "../businesslogic";
+import type { AppStatus } from "../businesslogic/index.js";
 
 export function readRuntimeStatus(): AppStatus {
   return {

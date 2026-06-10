@@ -1,10 +1,9 @@
 # swa-template
 
-Generic starter template for a Static Web App style project.
+Generic starter template for an Azure Static Web App project with 11ty.
 
-This template is intentionally source-light: it defines project boundaries,
-automation, documentation, and deployment hooks without prescribing a frontend
-framework, API runtime, cloud provider module layout, or business domain.
+This template uses 11ty as the static site generator and keeps the source
+layout deliberately flat.
 
 ## Structure
 
@@ -30,7 +29,7 @@ swa-template/
 ## Directory Roles
 
 - `.agents/skills/` holds the ready-to-use generic agent skills.
-- `html/` holds static HTML entry points and document fragments.
+- `html/` holds 11ty pages, includes, layouts, and data.
 - `css/` holds stylesheets, design tokens, and static styling assets.
 - `img/` holds images and media assets.
 - `api/` is the optional Azure Functions or serverless API boundary.
@@ -42,8 +41,8 @@ swa-template/
 
 ## Start Here
 
-1. Choose the frontend runtime, if plain HTML/CSS/TypeScript is not enough.
-2. Replace placeholder files in `html/`, `css/`, `img/`, `api/`, and `ts/`.
+1. Edit 11ty pages in `html/`.
+2. Replace placeholder files in `css/`, `img/`, `api/`, and `ts/`.
 3. Fill in `docs/infrastructure.md` with the target cloud resources.
 4. Review `docs/skills.md` and keep only the skills that fit the project.
 5. Keep or tighten the generic lint rules in `eslint.architecture.mjs`.
@@ -60,12 +59,12 @@ api_location: api
 output_location: dist
 ```
 
-The build copies `html/`, `css/`, and `img/` into `dist/`, then compiles
-`ts/` into `dist/ts/`.
+The build renders `html/` with 11ty, copies `css/`, `img/`, and
+`staticwebapp.config.json` into `dist/`, then compiles `ts/` into `dist/ts/`.
 
 ## CI/CD
 
-The default CI workflow validates the template, builds a placeholder artifact,
+The default CI workflow validates the template, builds the 11ty site artifact,
 checks ESLint and TypeScript, and uploads the `dist/` artifact. Deployment and
 provisioning are Azure-specific and use GitHub OIDC for Azure login.
 

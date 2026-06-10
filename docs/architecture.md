@@ -4,7 +4,7 @@
 
 This template separates the project into a small number of durable boundaries:
 
-- `html/` for static markup.
+- `html/` for 11ty pages, includes, layouts, and data.
 - `css/` for styling.
 - `img/` for image and media assets.
 - `api/` for optional serverless endpoints.
@@ -28,7 +28,7 @@ Avoid dependencies from `ts/businesslogic/` into concrete UI, browser, network,
 storage, or deployment implementations.
 
 Architecture rules are declared in `eslint.architecture.mjs` files and enforced
-by `npm run lint`.
+by `npm run lint`. Static pages are rendered by 11ty from `html/` to `dist/`.
 
 ## Extension Rule
 

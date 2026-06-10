@@ -1,2 +1,2 @@
-export { formatAppStatus } from "./app-model";
-export type { AppStatus } from "./app-model";
+export { formatAppStatus } from "./app-model.js";
+export type { AppStatus } from "./app-model.js";

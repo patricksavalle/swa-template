@@ -21,6 +21,18 @@ does not fit.
 | `system-optimization` | Constraint-driven system and workflow optimization. |
 | `continuous-improvement` | Promote recurring lessons into tests, checks, or skill edits. |
 | `design-and-refactor` | Orchestrates the design/refactor decision sequence. |
+| `accessibility-audit` | WCAG 2.2 AA audit gates for components, pages, and releases. |
+| `deep-research` | Citation-backed research workflow for comprehensive analysis. |
+| `eslint-fix-protocol` | Disciplined protocol for fixing ESLint findings. |
+| `gdpr-dsgvo-expert` | GDPR and DSGVO privacy review guidance. |
+| `issue-refinement` | Convert raw issues into implementation-ready specs. |
+| `observability-protocol` | Structured logging, tracing, metrics, and PII-safe telemetry. |
+| `release-management` | Production release branch, changelog, version, and PR protocol. |
+| `request-to-response-pipeline` | Trace changes across browser, API, auth, and storage boundaries. |
+| `rest-api-review` | REST API contract and endpoint review guidance. |
+| `skill-creation` | Create or update project-local agent skills. |
+| `swa-authenticate` | Authenticate SWA preview browser sessions for protected routes. |
+| `whitepapers` | Structure and write evidence-backed whitepapers. |
 
 ## Use In A Project
 

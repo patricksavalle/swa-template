@@ -43,17 +43,29 @@ const requiredPaths = [
 ];
 
 const expectedSkills = [
+  "accessibility-audit",
   "architecture-as-code",
   "architecture-as-code-javascript",
   "architecture-as-code-python",
   "architecture-guidelines",
   "ci-cd-reliability-architecture",
   "continuous-improvement",
+  "deep-research",
   "defect-shift-left",
   "design-and-refactor",
+  "eslint-fix-protocol",
   "functionality-complexity-tradeoff",
+  "gdpr-dsgvo-expert",
   "geometric-architecture",
+  "issue-refinement",
+  "observability-protocol",
+  "release-management",
+  "request-to-response-pipeline",
+  "rest-api-review",
+  "skill-creation",
   "structural-simplification",
+  "swa-authenticate",
+  "whitepapers",
   "system-optimization"
 ];
 

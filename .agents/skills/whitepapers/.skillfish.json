@@ -1,0 +1,10 @@
+{
+    "version": 2,
+    "name": "whitepapers",
+    "owner": "gtmagents",
+    "repo": "gtm-agents",
+    "path": "plugins/content-marketing/skills/whitepapers",
+    "branch": "main",
+    "sha": "020b47e7da618039ac8dac6652c744a4f7b8e4a8",
+    "source": "manual"
+}

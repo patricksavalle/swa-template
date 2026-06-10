@@ -1,3 +1,5 @@
+<img width="838" height="479" alt="image" src="https://github.com/user-attachments/assets/20f136b2-9f5e-40bf-9915-8b7b30e4af32" />
+
 # Azure Static Web Application Template (for Agentic AI development)
 
 > You get an empty but complete Azure Static Web App starter: 11ty pages,

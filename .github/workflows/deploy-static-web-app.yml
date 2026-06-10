@@ -71,37 +71,22 @@ jobs:
     environment: ${{ inputs.environment }}
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve Azure names
+        id: names
+        uses: ./.github/actions/resolve-azure-names
+        with:
+          environment: ${{ inputs.environment }}
+          app-name: ${{ vars.APP_NAME }}
+
       - name: Azure login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Resolve Azure names
-        id: names
-        shell: bash
-        run: |
-          raw="${{ vars.APP_NAME }}"
-          if [ -z "$raw" ]; then raw="${GITHUB_REPOSITORY#*/}"; fi
-          app_name="$(echo "$raw" \
-            | tr '[:upper:]' '[:lower:]' \
-            | sed 's/[^a-z0-9-]/-/g' \
-            | sed 's/--*/-/g' \
-            | sed 's/^-//;s/-$//')"
-
-          case "${{ inputs.environment }}" in
-            acceptance)
-              suffix="acc"
-              ;;
-            production)
-              suffix="prd"
-              ;;
-          esac
-
-          resource_prefix="${app_name}-${suffix}"
-          echo "resource_group=rg-${resource_prefix}" >> "$GITHUB_OUTPUT"
-          echo "swa_name=swa-${resource_prefix}" >> "$GITHUB_OUTPUT"
 
       - name: Download immutable artifact
         uses: actions/download-artifact@v4

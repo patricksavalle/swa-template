@@ -12,7 +12,7 @@ Install these tools before cloning a project from the template.
 | Tool | Required for |
 | --- | --- |
 | Git | Clone, branch, commit, push |
-| Node.js LTS + npm | Install dependencies, run 11ty, TypeScript, ESLint, local tools |
+| Node.js 20 LTS + npm | Install dependencies, run 11ty, TypeScript, ESLint, local tools |
 | GitHub CLI (`gh`) | GitHub authentication, repo setup, Actions and environment checks |
 | Azure CLI (`az`) | Azure login, Bicep validation, manual provisioning checks |
 | Azure Static Web Apps CLI (`swa`) | Optional local SWA emulation and direct SWA commands |
@@ -63,7 +63,7 @@ sudo apt-get update
 sudo apt-get install -y git curl ca-certificates
 ```
 
-Install Node.js LTS, GitHub CLI, and Azure CLI from their official package
+Install Node.js 20 LTS, GitHub CLI, and Azure CLI from their official package
 sources, then install the SWA CLI with npm:
 
 ```bash
@@ -190,8 +190,7 @@ Manual details and exact commands live in
 - Add adapters/config loaders under `ts/infrastructure/`.
 - Add TypeScript Azure Functions endpoints under `api/src/` only when backend
   endpoints are needed.
-- Replace `scripts/test-placeholder.mjs` with real tests once application
-  behavior exists.
+- Add focused behavior tests under `tests/` as application behavior grows.
 
 ## SWA Locations
 
@@ -219,9 +218,9 @@ The build renders `html/` with 11ty, copies `css/`, `img/`, and
 
 ## CI/CD
 
-The default CI workflow validates the template, builds the 11ty site artifact,
-checks ESLint and TypeScript, validates rendered HTML, runs a production
-dependency audit, runs a secret scan, and uploads the `dist/` and API artifacts.
+The default CI workflow runs independent checks for template validation, ESLint,
+TypeScript, rendered HTML, behavior tests, production dependency audit, and
+secret scanning. Deployment builds and owns the immutable deploy artifact.
 Deployment and provisioning are Azure-specific and use GitHub OIDC for Azure
 login.
 

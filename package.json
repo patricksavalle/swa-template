@@ -6,7 +6,7 @@
   "license": "MIT",
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=20 <21"
   },
   "scripts": {
     "validate": "node scripts/validate-template.mjs && npm run validate:swa-config",
@@ -19,8 +19,8 @@
     "build": "npm run clean && eleventy --config=eleventy.config.js && tsc --project tsconfig.json && npm run build:api",
     "dev": "eleventy --config=eleventy.config.js --serve",
     "check:html": "htmlhint \"dist/**/*.html\"",
-    "test": "node scripts/test-placeholder.mjs",
-    "ci": "npm run validate && npm run lint && npm run typecheck && npm run build && npm run check:html && npm test"
+    "test": "node scripts/run-tests.mjs",
+    "ci": "npm run validate && npm run lint && npm run build && npm run check:html && npm test"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.6",

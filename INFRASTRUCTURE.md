@@ -272,7 +272,7 @@ secrets.
 
 | Workflow | Purpose |
 | --- | --- |
-| `ci.yml` | Validates structure, lint, typecheck, 11ty build, and tests |
+| `ci.yml` | Runs parallel validation, lint, typecheck, build, HTML, test, audit, and secret-scan checks |
 | `provision-azure.yml` | Creates or updates acceptance/production Azure resources |
 | `seed-azure-app-settings.yml` | Reapplies CIAM and Cosmos app settings |
 | `deploy-static-web-app.yml` | Builds once and deploys the prebuilt `dist/` artifact |
@@ -293,7 +293,7 @@ Manual dispatch:
 
 Manual dispatch:
 
-1. CI builds the immutable `dist/` artifact.
+1. Deploy workflow builds the immutable `dist/` artifact for the selected commit.
 2. Deploy job logs into Azure with OIDC.
 3. Deploy job reads the target SWA deployment token from Azure.
 4. `Azure/static-web-apps-deploy@v1` uploads the prebuilt artifact with
@@ -373,7 +373,7 @@ alert. Leave it empty to skip alert resources.
 - CIAM client secret is a seed secret because external identity app
   registration lifecycle is outside the Bicep deployment.
 - No Key Vault is used.
-- Build happens in CI; SWA receives a prebuilt artifact.
+- Build happens in the deploy workflow; SWA receives a prebuilt artifact.
 - Runtime app settings are environment-scoped.
 - Production should have GitHub environment protection rules before use.
 

@@ -1,0 +1,63 @@
+name: Resolve Azure names
+description: Resolve environment-scoped Azure resource names from repository metadata.
+
+inputs:
+  environment:
+    description: Target environment.
+    required: true
+  app-name:
+    description: Optional application name override.
+    required: false
+    default: ""
+
+outputs:
+  app_name:
+    description: Sanitized application name.
+    value: ${{ steps.resolve.outputs.app_name }}
+  resource_prefix:
+    description: Environment-scoped Azure resource prefix.
+    value: ${{ steps.resolve.outputs.resource_prefix }}
+  resource_group:
+    description: Azure resource group name.
+    value: ${{ steps.resolve.outputs.resource_group }}
+  swa_name:
+    description: Azure Static Web App resource name.
+    value: ${{ steps.resolve.outputs.swa_name }}
+  cosmos_name:
+    description: Cosmos DB account name.
+    value: ${{ steps.resolve.outputs.cosmos_name }}
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve names
+      id: resolve
+      shell: bash
+      run: |
+        raw="${{ inputs.app-name }}"
+        if [ -z "$raw" ]; then raw="${GITHUB_REPOSITORY#*/}"; fi
+        app_name="$(echo "$raw" \
+          | tr '[:upper:]' '[:lower:]' \
+          | sed 's/[^a-z0-9-]/-/g' \
+          | sed 's/--*/-/g' \
+          | sed 's/^-//;s/-$//')"
+
+        case "${{ inputs.environment }}" in
+          acceptance)
+            suffix="acc"
+            ;;
+          production)
+            suffix="prd"
+            ;;
+          *)
+            echo "ERROR: Unsupported environment: ${{ inputs.environment }}"
+            exit 1
+            ;;
+        esac
+
+        resource_prefix="${app_name}-${suffix}"
+        echo "app_name=${app_name}" >> "$GITHUB_OUTPUT"
+        echo "resource_prefix=${resource_prefix}" >> "$GITHUB_OUTPUT"
+        echo "resource_group=rg-${resource_prefix}" >> "$GITHUB_OUTPUT"
+        echo "swa_name=swa-${resource_prefix}" >> "$GITHUB_OUTPUT"
+        echo "cosmos_name=cosmos-${resource_prefix}" >> "$GITHUB_OUTPUT"

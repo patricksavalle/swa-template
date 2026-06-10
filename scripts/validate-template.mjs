@@ -6,6 +6,8 @@ const root = process.cwd();
 const requiredPaths = [
   "AGENTS.md",
   "README.md",
+  ".nvmrc",
+  ".node-version",
   "package.json",
   ".eleventyignore",
   "eleventy.config.js",
@@ -25,10 +27,11 @@ const requiredPaths = [
   "infrastructure/environments/production.bicepparam",
   ".htmlhintrc",
   "scripts/clean-dist.mjs",
+  "scripts/run-tests.mjs",
   "scripts/validate-template.mjs",
   "scripts/validate-swa-config.mjs",
   "scripts/configure-cloudflare-dns.mjs",
-  "scripts/test-placeholder.mjs",
+  ".github/actions/resolve-azure-names/action.yml",
   ".github/config/staticwebapp.schema.json",
   ".github/workflows/ci.yml",
   ".github/workflows/deploy-static-web-app.yml",
@@ -53,6 +56,8 @@ const requiredPaths = [
   "ts/businesslogic/eslint.architecture.mjs",
   "ts/userinterface/README.md",
   "ts/userinterface/eslint.architecture.mjs",
+  "tests/app-model.test.mjs",
+  "tests/health.test.mjs",
   "tests/README.md"
 ];
 

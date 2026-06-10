@@ -14,8 +14,110 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate-build-test:
-    name: Validate, Build, Test
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install gitleaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz \
+            | sudo tar -xzf - -C /usr/local/bin gitleaks
+
+      - name: Secret scan
+        run: gitleaks detect --source . --redact --verbose --no-banner
+
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Security audit (production dependencies)
+        run: npm audit --omit=dev --audit-level=moderate
+
+      - name: Verify npm signatures (advisory)
+        continue-on-error: true
+        run: npm audit signatures
+
+  validate:
+    name: Validate Template
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate
+        run: npm run validate
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+  build-test:
+    name: Build And Test
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -32,40 +134,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Security audit (production dependencies)
-        run: npm audit --omit=dev --audit-level=moderate
+      - name: Build
+        run: npm run build
 
-      - name: Verify npm signatures (advisory)
-        continue-on-error: true
-        run: npm audit signatures
+      - name: Check rendered HTML
+        run: npm run check:html
 
-      - name: Run CI checks
-        run: npm run ci
-
-      - name: Install gitleaks
-        run: |
-          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz \
-            | sudo tar -xzf - -C /usr/local/bin gitleaks
-
-      - name: Secret scan
-        run: gitleaks detect --source . --redact --verbose --no-banner
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: static-web-artifact-${{ github.sha }}
-          path: dist/
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Upload API artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-artifact-${{ github.sha }}
-          path: |
-            api/host.json
-            api/package.json
-            api/health/function.json
-            api/dist/**
-          if-no-files-found: error
-          retention-days: 14
+      - name: Test
+        run: npm test

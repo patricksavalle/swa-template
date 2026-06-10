@@ -1,7 +1,7 @@
 # Tests
 
-Cross-boundary test placeholder.
+Cross-boundary behavior tests live here.
 
-Use this directory for tests that validate behavior across `app/`, `api/`, and
-infrastructure boundaries. Package-local tests should live beside the package
-they verify.
+The current tests exercise compiled browser-domain output in `dist/ts/` and the
+compiled Azure Functions API output in `api/dist/`. Run `npm run build` before
+`npm test`, or use `npm run ci` to run the full local gate.

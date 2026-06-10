@@ -1,7 +1,7 @@
 # Azure Static Web Application Template (for Agentic AI development)
 
-> You get an empty but complete Azure Static Web App starter: 11ty pages, plain
-> CSS, browser TypeScript, optional TypeScript API, validation scripts, CI,
+> You get an empty but complete Azure Static Web App starter: 11ty pages,
+> Tailwind CSS, browser TypeScript, optional TypeScript API, validation scripts, CI,
 > deploy workflows, Bicep infrastructure, and agent-ready delivery guidance.
 > After onboarding and deployment, you have acceptance and production Azure
 > resources provisioned, app settings seeded, CI/CD wired through GitHub OIDC,
@@ -15,7 +15,7 @@ Install these tools before cloning a project from the template.
 | Tool | Required for |
 | --- | --- |
 | Git | Clone, branch, commit, push |
-| Node.js 20 LTS + npm | Install dependencies, run 11ty, TypeScript, ESLint, local tools |
+| Node.js 20 LTS + npm | Install dependencies, run 11ty, Tailwind CSS, TypeScript, ESLint, local tools |
 | GitHub CLI (`gh`) | GitHub authentication, repo setup, Actions and environment checks |
 | Azure CLI (`az`) | Azure login, Bicep validation, manual provisioning checks |
 | Azure Static Web Apps CLI (`swa`) | Optional local SWA emulation and direct SWA commands |
@@ -121,7 +121,7 @@ npx wrangler login
 - `.agents/skills/` holds the ready-to-use generic agent skills.
 - `.agents/workflows/` holds agent-operated setup and delivery workflows.
 - `html/` holds 11ty pages, includes, layouts, and data.
-- `css/` holds stylesheets, design tokens, and static styling assets.
+- `css/` holds Tailwind CSS input, compiled stylesheet output, and static styling assets.
 - `img/` holds images and media assets.
 - `api/` is the optional TypeScript Azure Functions API boundary.
 - `ts/` holds TypeScript source in infrastructure, business logic, and user
@@ -178,7 +178,7 @@ Manual details and exact commands live in
 ### Continue Development
 
 - Replace placeholder content in `html/index.html`.
-- Add styles in `css/site.css`.
+- Add Tailwind utilities in `html/` templates and shared Tailwind input in `css/tailwind.css`.
 - Add browser TypeScript under `ts/userinterface/`.
 - Add deterministic business rules under `ts/businesslogic/`.
 - Add adapters/config loaders under `ts/infrastructure/`.
@@ -207,8 +207,9 @@ output_location: ''
 Set the GitHub variable `SWA_API_LOCATION=api` only when the project should
 deploy the included TypeScript Azure Functions API.
 
-The build renders `html/` with 11ty, copies `css/`, `img/`, and
-`staticwebapp.config.json` into `dist/`, then compiles `ts/` into `dist/ts/`.
+The build compiles Tailwind CSS into `css/site.css`, renders `html/` with 11ty,
+copies `css/`, `img/`, and `staticwebapp.config.json` into `dist/`, then
+compiles `ts/` into `dist/ts/`.
 
 ## CI/CD
 

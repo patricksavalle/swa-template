@@ -19,7 +19,7 @@ Use this initial stack:
 | --- | --- |
 | Language | TypeScript for application and API source; JavaScript/ES modules only for build scripts and configuration |
 | Static rendering | 11ty renders `html/` into `dist/` |
-| Styling | Plain CSS in `css/`; no inline styles |
+| Styling | Tailwind CSS compiled from `css/tailwind.css` to `css/site.css`; no inline styles |
 | UI runtime | Browser-native TypeScript compiled to JavaScript; no React, Vue, Angular, Svelte, or similar UI framework |
 | Serverless API | Optional TypeScript Azure Functions-compatible boundary in `api/` |
 | Platform | Azure Static Web Apps |

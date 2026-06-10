@@ -7,10 +7,74 @@
     <link rel="stylesheet" href="/css/site.css">
     <script type="module" src="/ts/userinterface/main.js"></script>
   </head>
-  <body>
-    <main class="shell">
-      <h1>swa-template</h1>
-      <p id="app-status">Loading...</p>
+  <body class="min-h-screen overflow-x-hidden bg-slate-50 text-slate-950 antialiased dark:bg-slate-950 dark:text-white">
+    <main class="min-h-screen">
+      <section class="min-h-screen bg-[radial-gradient(circle_at_15%_10%,#cbe0ff,transparent_35%),radial-gradient(circle_at_85%_20%,#d9f4e7,transparent_32%)] dark:bg-[radial-gradient(circle_at_15%_10%,#173a74,transparent_35%),radial-gradient(circle_at_85%_20%,#17472d,transparent_32%)]">
+        <div class="mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-6 py-8 lg:px-8">
+          <div class="grid items-center gap-8 lg:grid-cols-[1.3fr_1fr]">
+            <div>
+              <p class="mb-3 text-xs font-bold uppercase text-blue-700 dark:text-blue-300">Azure Static Web App starter</p>
+              <h1 class="mb-6 text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl dark:text-white">A clean launchpad for your next web project</h1>
+              <p class="mb-6 max-w-2xl text-lg leading-8 text-slate-700 dark:text-slate-300">
+                Start with 11ty, TypeScript, Tailwind CSS, CI/CD, Bicep infrastructure, and an optional API boundary already wired for Azure Static Web Apps. The template is optimized for Agentic AI workflows with explicit docs, checks, and project conventions.
+              </p>
+              <div class="flex flex-col gap-3 sm:flex-row">
+                <a class="inline-flex items-center justify-center rounded-md bg-blue-700 px-5 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-blue-800" href="https://learn.microsoft.com/azure/static-web-apps/" rel="noopener">Azure SWA docs</a>
+                <a class="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white/70 px-5 py-3 text-base font-semibold text-slate-800 transition hover:bg-white dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100 dark:hover:bg-slate-900" href="https://github.com/patricksavalle/swa-template" rel="noopener">GitHub repo</a>
+                <a class="inline-flex items-center justify-center rounded-md border border-slate-300 px-5 py-3 text-base font-semibold text-slate-800 transition hover:bg-white dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-900" href="/api/health">API health</a>
+              </div>
+            </div>
+            <div>
+              <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <p class="mb-2 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Runtime status</p>
+                <p id="app-status" class="mb-6 text-2xl font-semibold text-slate-950 dark:text-white">Loading...</p>
+                <dl class="grid grid-cols-[8rem_1fr] gap-y-2 text-sm text-slate-700 dark:text-slate-300">
+                  <dt class="font-semibold text-slate-950 dark:text-white">Static output</dt>
+                  <dd>dist/</dd>
+                  <dt class="font-semibold text-slate-950 dark:text-white">API boundary</dt>
+                  <dd>optional</dd>
+                  <dt class="font-semibold text-slate-950 dark:text-white">Infrastructure</dt>
+                  <dd>Bicep</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <div class="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {% set features = [
+            {
+              kicker: "Build",
+              title: "Prebuilt static site",
+              description: "11ty renders HTML, copies static assets, and TypeScript compiles browser code into the deployable dist folder.",
+              tone: "bg-sky-50 dark:bg-sky-950"
+            },
+            {
+              kicker: "Ship",
+              title: "CI/CD ready",
+              description: "GitHub Actions validate, lint, typecheck, build, test, scan, and deploy the prebuilt artifact.",
+              tone: "bg-emerald-50 dark:bg-emerald-950"
+            },
+            {
+              kicker: "Operate",
+              title: "Azure infrastructure",
+              description: "Bicep provisions Static Web Apps, telemetry, Cosmos resources, and environment-scoped app settings.",
+              tone: "bg-violet-50 dark:bg-violet-950"
+            },
+            {
+              kicker: "Agentic AI",
+              title: "AI-ready project context",
+              description: "Repository docs, skills, validation scripts, and architecture notes are shaped for autonomous coding agents.",
+              tone: "bg-amber-50 dark:bg-amber-950"
+            }
+          ] %}
+
+          {% for feature in features %}
+            <div>
+              {% include "components/feature-card.html" %}
+            </div>
+          {% endfor %}
+          </div>
+        </div>
+      </section>
     </main>
   </body>
 </html>

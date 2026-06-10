@@ -1,1 +1,1 @@
-export { readRuntimeStatus } from "./runtime-config";
+export { readRuntimeStatus } from "./runtime-config.js";

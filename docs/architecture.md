@@ -24,7 +24,7 @@ The initial stack decision is recorded in
 | --- | --- |
 | Language | TypeScript for app and API source; JavaScript ES modules only for scripts/config |
 | Static rendering | 11ty renders `html/` to `dist/` |
-| Styling | Plain CSS in `css/`; no inline styles |
+| Styling | Tailwind CSS compiled from `css/tailwind.css` to `css/site.css`; no inline styles |
 | UI runtime | Browser-native TypeScript compiled to JavaScript; no UI framework by default |
 | API | Optional TypeScript Azure Functions-compatible boundary in `api/` |
 | Platform | Azure Static Web Apps |

@@ -154,8 +154,9 @@ WCAG 2.2 added nine criteria over 2.1. Three commonly bite this stack:
 Action sequence:
 
 1. Reproduce on the PR-preview URL.
-2. Locate the source — `.metric-card-label` lives in `css/site.css` or a
-   component stylesheet.
+2. Locate the source — a utility lives in the page/component template, while
+   shared theme declarations live in `css/tailwind.css` and compile to
+   `css/site.css`.
 3. Adjust the **token**, not the local rule. If the token is wrong, fix the
    design token and let the change propagate.
 4. Re-run the visual-review check via the agent — do not just trust the local

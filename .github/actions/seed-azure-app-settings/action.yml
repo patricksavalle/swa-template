@@ -1,0 +1,39 @@
+name: Seed Azure app settings
+description: Seed environment-specific Azure Static Web Apps application settings.
+
+inputs:
+  resource-group:
+    description: Azure resource group name.
+    required: true
+  swa-name:
+    description: Azure Static Web App resource name.
+    required: true
+  cosmos-name:
+    description: Cosmos DB account name.
+    required: true
+  ciam-client-secret:
+    description: CIAM app registration client secret.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Seed application settings
+      shell: bash
+      run: |
+        cosmos_connection_string="$(az cosmosdb keys list \
+          --resource-group "${{ inputs.resource-group }}" \
+          --name "${{ inputs.cosmos-name }}" \
+          --type connection-strings \
+          --query 'connectionStrings[0].connectionString' \
+          --output tsv)"
+
+        echo "::add-mask::$cosmos_connection_string"
+        echo "::add-mask::${{ inputs.ciam-client-secret }}"
+
+        az staticwebapp appsettings set \
+          --resource-group "${{ inputs.resource-group }}" \
+          --name "${{ inputs.swa-name }}" \
+          --setting-names \
+            CIAM_CLIENT_SECRET="${{ inputs.ciam-client-secret }}" \
+            COSMOS_CONNECTION_STRING="$cosmos_connection_string"

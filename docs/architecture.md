@@ -26,7 +26,7 @@ The initial stack decision is recorded in
 | Static rendering | 11ty renders `html/` to `dist/` |
 | Styling | Tailwind CSS compiled from `css/tailwind.css` to `css/site.css`; no inline styles |
 | UI runtime | Browser-native TypeScript compiled to JavaScript; no UI framework by default |
-| API | Optional TypeScript Azure Functions-compatible boundary in `api/` with a source-owned OpenAPI 3.1 contract |
+| API | Standard TypeScript Azure Functions-compatible boundary in `api/` with health, Azure resource listing, and a source-owned OpenAPI 3.1 contract |
 | Platform | Azure Static Web Apps |
 | Infrastructure | Bicep in `infrastructure/` |
 | CI/CD | GitHub Actions with OIDC-based Azure login |
@@ -51,10 +51,9 @@ storage, or deployment implementations.
 
 Architecture rules are declared in `eslint.architecture.mjs` files and enforced
 by `npm run lint`. Static pages are rendered by 11ty from `html/` to `dist/`.
-The optional API boundary uses TypeScript source under `api/src/` and is bundled
-to `api/dist/` before deployment. It includes a no-store health endpoint and an
-OpenAPI JSON endpoint at `/api/openapi.json`. It is deployed only when the
-GitHub variable `SWA_API_LOCATION` is set to `api`.
+The API boundary uses TypeScript source under `api/src/` and is bundled to
+`api/dist/` before deployment. It includes no-store health and Azure resource
+listing endpoints plus an OpenAPI JSON endpoint at `/api/openapi.json`.
 
 ## Extension Rule
 

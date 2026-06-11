@@ -21,7 +21,7 @@ Use this initial stack:
 | Static rendering | 11ty renders `html/` into `dist/` |
 | Styling | Tailwind CSS compiled from `css/tailwind.css` to `css/site.css`; no inline styles |
 | UI runtime | Browser-native TypeScript compiled to JavaScript; no React, Vue, Angular, Svelte, or similar UI framework |
-| Serverless API | Optional TypeScript Azure Functions-compatible boundary in `api/` |
+| Serverless API | Standard TypeScript Azure Functions-compatible boundary in `api/` |
 | Platform | Azure Static Web Apps |
 | Infrastructure | Bicep in `infrastructure/` |
 | CI/CD | GitHub Actions with OIDC-based Azure login |

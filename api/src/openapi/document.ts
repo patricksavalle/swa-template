@@ -6,6 +6,10 @@ type SchemaPropertyValue<Property> = Property extends { readonly const: infer Va
     ? string
     : Property extends { readonly type: "boolean" }
       ? boolean
+      : Property extends { readonly type: "array"; readonly items: infer Item }
+        ? readonly SchemaPropertyValue<Item>[]
+        : Property extends { readonly type: "object"; readonly properties: infer Properties extends Record<string, unknown> }
+          ? { readonly [Key in keyof Properties]: SchemaPropertyValue<Properties[Key]> }
       : unknown;
 
 type ObjectSchemaValue<Schema extends { readonly properties: Record<string, unknown> }> = {
@@ -35,6 +39,53 @@ const healthResponseSchema = {
 } as const;
 
 export type HealthResponse = ObjectSchemaValue<typeof healthResponseSchema>;
+
+const azureResourceSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["kind", "name"],
+  properties: {
+    kind: {
+      type: "string"
+    },
+    name: {
+      type: "string"
+    },
+    settings: {
+      type: "object",
+      additionalProperties: {
+        oneOf: [
+          {
+            type: "string"
+          },
+          {
+            type: "array",
+            items: {
+              type: "string"
+            }
+          }
+        ]
+      }
+    }
+  }
+} as const;
+
+const azureResourcesResponseSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["environment", "resources"],
+  properties: {
+    environment: {
+      type: "string"
+    },
+    resources: {
+      type: "array",
+      items: azureResourceSchema
+    }
+  }
+} as const;
+
+export type AzureResourcesResponse = ObjectSchemaValue<typeof azureResourcesResponseSchema>;
 
 export const openApiDocument = {
   openapi: "3.1.0",
@@ -91,10 +142,40 @@ export const openApiDocument = {
           }
         }
       }
+    },
+    "/api/resources": {
+      get: {
+        operationId: "listAzureResources",
+        summary: "List Azure resources",
+        description: "Returns the Azure resources and external identity configuration used by the app.",
+        tags: ["system"],
+        responses: {
+          "200": {
+            description: "The resources used by the app.",
+            headers: {
+              "Cache-Control": {
+                schema: {
+                  type: "string",
+                  const: "no-store"
+                }
+              }
+            },
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/AzureResourcesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   components: {
     schemas: {
+      AzureResource: azureResourceSchema,
+      AzureResourcesResponse: azureResourcesResponseSchema,
       HealthResponse: healthResponseSchema
     }
   },

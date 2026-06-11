@@ -53,6 +53,18 @@ jobs:
         continue-on-error: true
         run: npm audit signatures
 
+  infrastructure-validate:
+    name: Infrastructure Validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Build Bicep
+        run: az bicep build --file infrastructure/main.bicep
+
   validate:
     name: Validate Template
     runs-on: ubuntu-latest

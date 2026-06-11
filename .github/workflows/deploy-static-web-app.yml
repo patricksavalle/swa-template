@@ -128,7 +128,7 @@ jobs:
           azure_static_web_apps_api_token: ${{ steps.swa-token.outputs.token }}
           action: upload
           app_location: dist
-          api_location: ${{ vars.SWA_API_LOCATION || '' }}
+          api_location: api
           output_location: ''
           skip_app_build: true
           skip_api_build: true
@@ -136,6 +136,9 @@ jobs:
       - name: Health check
         shell: bash
         run: |
-          url="https://${{ steps.swa-token.outputs.default_hostname }}/"
-          curl --fail --silent --show-error --location --retry 5 --retry-delay 5 --retry-all-errors "$url" >/dev/null
-          echo "Health check OK: $url"
+          origin="https://${{ steps.swa-token.outputs.default_hostname }}"
+          for path in "/" "/api/health" "/api/resources"; do
+            url="${origin}${path}"
+            curl --fail --silent --show-error --location --retry 5 --retry-delay 5 --retry-all-errors "$url" >/dev/null
+            echo "Health check OK: $url"
+          done

@@ -46,21 +46,9 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Seed application settings
-        shell: bash
-        run: |
-          cosmos_connection_string="$(az cosmosdb keys list \
-            --resource-group "${{ steps.names.outputs.resource_group }}" \
-            --name "${{ steps.names.outputs.cosmos_name }}" \
-            --type connection-strings \
-            --query 'connectionStrings[0].connectionString' \
-            --output tsv)"
-
-          echo "::add-mask::$cosmos_connection_string"
-          echo "::add-mask::${{ secrets.CIAM_CLIENT_SECRET }}"
-
-          az staticwebapp appsettings set \
-            --resource-group "${{ steps.names.outputs.resource_group }}" \
-            --name "${{ steps.names.outputs.swa_name }}" \
-            --setting-names \
-              CIAM_CLIENT_SECRET="${{ secrets.CIAM_CLIENT_SECRET }}" \
-              COSMOS_CONNECTION_STRING="$cosmos_connection_string"
+        uses: ./.github/actions/seed-azure-app-settings
+        with:
+          resource-group: ${{ steps.names.outputs.resource_group }}
+          swa-name: ${{ steps.names.outputs.swa_name }}
+          cosmos-name: ${{ steps.names.outputs.cosmos_name }}
+          ciam-client-secret: ${{ secrets.CIAM_CLIENT_SECRET }}

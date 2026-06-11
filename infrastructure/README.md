@@ -17,7 +17,6 @@ Each environment provisions the same resource shape:
 - Azure Cosmos DB for NoSQL
 - Log Analytics workspace
 - Application Insights
-- User-assigned managed identity
 - CIAM configuration as application settings
 
 CIAM tenant and app registration creation are treated as seed prerequisites.

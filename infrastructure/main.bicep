@@ -46,9 +46,6 @@ param cosmosContainers array = [
 @description('Common resource tags.')
 param tags object = {}
 
-@description('Email receiver for optional platform alerts. Leave empty to skip alert resources.')
-param alertEmail string = ''
-
 var normalizedTags = union(tags, {
   project: projectName
   environment: environmentName
@@ -59,10 +56,7 @@ var staticWebAppName = 'swa-${resourceNamePrefix}'
 var cosmosAccountName = 'cosmos-${resourceNamePrefix}'
 var logAnalyticsName = 'law-${resourceNamePrefix}'
 var appInsightsName = 'appi-${resourceNamePrefix}'
-var identityName = 'id-${resourceNamePrefix}'
-var actionGroupName = 'ag-${resourceNamePrefix}'
-var availabilityAlertName = 'alert-${resourceNamePrefix}-availability'
-var alertingEnabled = !empty(alertEmail)
+var cosmosContainerNames = [for container in cosmosContainers: container.name]
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: logAnalyticsName
@@ -85,12 +79,6 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
     Application_Type: 'web'
     WorkspaceResourceId: logAnalytics.id
   }
-}
-
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: identityName
-  location: location
-  tags: normalizedTags
 }
 
 resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
@@ -159,66 +147,17 @@ resource staticWebAppSettings 'Microsoft.Web/staticSites/config@2023-12-01' = {
   properties: {
     APP_ENV: environmentName
     PROJECT_NAME: projectName
+    STATIC_WEB_APP_NAME: staticWebApp.name
     CIAM_TENANT_ID: ciamTenantId
     CIAM_TENANT_NAME: ciamTenantName
     CIAM_CLIENT_ID: ciamClientId
     COSMOS_ACCOUNT_NAME: cosmosAccount.name
     COSMOS_ENDPOINT: cosmosAccount.properties.documentEndpoint
     COSMOS_DATABASE_NAME: cosmosDatabaseName
+    COSMOS_CONTAINER_NAMES: join(cosmosContainerNames, ',')
+    LOG_ANALYTICS_WORKSPACE_NAME: logAnalytics.name
+    APPLICATION_INSIGHTS_NAME: appInsights.name
     APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString
-  }
-}
-
-resource actionGroup 'Microsoft.Insights/actionGroups@2023-01-01' = if (alertingEnabled) {
-  name: actionGroupName
-  location: 'global'
-  tags: normalizedTags
-  properties: {
-    groupShortName: take(replace(resourceNamePrefix, '-', ''), 12)
-    enabled: true
-    emailReceivers: [
-      {
-        name: 'primary'
-        emailAddress: alertEmail
-        useCommonAlertSchema: true
-      }
-    ]
-  }
-}
-
-resource failedRequestAlert 'Microsoft.Insights/scheduledQueryRules@2023-12-01' = if (alertingEnabled) {
-  name: availabilityAlertName
-  location: location
-  tags: normalizedTags
-  properties: {
-    displayName: 'Failed requests - ${resourceNamePrefix}'
-    description: 'Alerts when Application Insights records failed requests in the last five minutes.'
-    enabled: true
-    severity: environmentName == 'production' ? 2 : 3
-    scopes: [
-      logAnalytics.id
-    ]
-    evaluationFrequency: 'PT5M'
-    windowSize: 'PT5M'
-    criteria: {
-      allOf: [
-        {
-          query: 'AppRequests | where Success == false'
-          timeAggregation: 'Count'
-          operator: 'GreaterThan'
-          threshold: 0
-          failingPeriods: {
-            numberOfEvaluationPeriods: 1
-            minFailingPeriodsToAlert: 1
-          }
-        }
-      ]
-    }
-    actions: {
-      actionGroups: [
-        actionGroup.id
-      ]
-    }
   }
 }
 
@@ -227,4 +166,3 @@ output cosmosAccountName string = cosmosAccount.name
 output cosmosDatabaseName string = cosmosDatabaseName
 output logAnalyticsWorkspaceName string = logAnalytics.name
 output applicationInsightsName string = appInsights.name
-output managedIdentityClientId string = managedIdentity.properties.clientId

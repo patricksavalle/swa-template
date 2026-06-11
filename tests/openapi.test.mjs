@@ -20,10 +20,15 @@ test("openapi endpoint returns the source-owned REST contract", async () => {
   assert.deepEqual(body, openApiDocument);
   assert.equal(body.openapi, "3.1.0");
   assert.equal(body.paths["/api/health"].get.operationId, "getHealth");
+  assert.equal(body.paths["/api/resources"].get.operationId, "listAzureResources");
   assert.equal(body.paths["/api/openapi.json"].get.operationId, "getOpenApiDocument");
   assert.equal(
     body.paths["/api/health"].get.responses["200"].content["application/json"].schema.$ref,
     "#/components/schemas/HealthResponse"
+  );
+  assert.equal(
+    body.paths["/api/resources"].get.responses["200"].content["application/json"].schema.$ref,
+    "#/components/schemas/AzureResourcesResponse"
   );
   assert.equal(logEntries.length, 1);
   assert.equal(logEntries[0][0], "openapi document served");

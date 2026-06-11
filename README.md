@@ -3,12 +3,12 @@
 # Azure Static Web Application Template (for Agentic AI development)
 
 > You get an empty but complete Azure Static Web App starter: 11ty pages,
-> Tailwind CSS, browser TypeScript, optional TypeScript API, validation scripts, CI,
+> Tailwind CSS, browser TypeScript, TypeScript API, validation scripts, CI,
 > deploy workflows, Bicep infrastructure, and agent-ready delivery guidance.
 > After onboarding and deployment, you have acceptance and production Azure
 > resources provisioned, app settings seeded, CI/CD wired through GitHub OIDC,
-> and a prebuilt static site deployed to Azure Static Web Apps on the default
-> hostname, with optional API and custom-domain/DNS steps available when needed.
+> and a prebuilt static site plus API deployed to Azure Static Web Apps on the
+> default hostname, with custom-domain/DNS steps available when needed.
 
 ## Workstation Prerequisites
 
@@ -125,7 +125,7 @@ npx wrangler login
 - `html/` holds 11ty pages, includes, layouts, and data.
 - `css/` holds Tailwind CSS input, compiled stylesheet output, and static styling assets.
 - `img/` holds images and media assets.
-- `api/` is the optional TypeScript Azure Functions API boundary.
+- `api/` is the TypeScript Azure Functions API boundary.
 - `ts/` holds TypeScript source in infrastructure, business logic, and user
   interface tiers.
 - `tests/` holds cross-boundary tests that do not belong to one tier.
@@ -202,13 +202,13 @@ Deploy workflow locations:
 
 ```text
 app_location: dist
-api_location: ''
+api_location: api
 output_location: ''
 ```
 
-Set the GitHub variable `SWA_API_LOCATION=api` only when the project should
-deploy the included TypeScript Azure Functions API. When enabled, the API
-serves health at `/api/health` and its OpenAPI contract at `/api/openapi.json`.
+The included TypeScript Azure Functions API is deployed as a standard app
+element. It serves health at `/api/health`, Azure resource metadata at
+`/api/resources`, and its OpenAPI contract at `/api/openapi.json`.
 
 The build compiles Tailwind CSS into `css/site.css`, renders `html/` with 11ty,
 copies `css/`, `img/`, and `staticwebapp.config.json` into `dist/`, then
@@ -216,20 +216,38 @@ compiles `ts/` into `dist/ts/`.
 
 ## CI/CD
 
-The default CI workflow runs independent checks for template validation, ESLint,
-TypeScript, rendered HTML, behavior tests, production dependency audit, and
-secret scanning. Deployment builds and owns the immutable deploy artifact.
+The default CI workflow runs independent checks for template validation, Bicep
+compilation, ESLint, TypeScript, rendered HTML, behavior tests, production
+dependency audit, and secret scanning. Deployment builds and owns the immutable
+deploy artifact, then health-checks the static site and standard API endpoints.
 Deployment and provisioning are Azure-specific and use GitHub OIDC for Azure
 login.
 
 Azure workflows included:
 
-- `Provision Azure` creates acceptance or production resources.
+- `Provision Azure` creates acceptance or production resources in the selected Azure region.
 - `Seed Azure App Settings` reapplies CIAM and Cosmos seed settings.
 - `Deploy Static Web App` deploys the prebuilt `dist/` artifact.
 
 Azure resource names are derived from the final cloned repository name by
 default. Set the GitHub variable `APP_NAME` to override the derived name.
+
+## Production Readiness Checklist
+
+Before treating a newly instantiated project as production-ready, complete one
+end-to-end rehearsal and record any project-specific decisions that fall out of
+it.
+
+- Run full acceptance provisioning and deployment.
+- Run production provisioning and deployment with GitHub environment approvals enabled.
+- Configure branch protection and required CI checks.
+- Verify CIAM login and route-access policy for app and API routes.
+- Bind and verify custom domains and DNS.
+- Define SLOs, dashboard expectations, alert ownership, and escalation paths.
+- Decide whether Cosmos connection strings remain acceptable or managed identity
+  should be introduced for the project.
+- Rotate the CIAM seed secret once and rerun `Seed Azure App Settings`.
+- Capture project-specific ADRs after the rehearsal.
 
 ## Agent Guidance
 

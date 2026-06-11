@@ -14,14 +14,13 @@ Azure tenant / subscription
 └── Resource group: rg-<app-name>-<env-suffix>
     ├── Azure Static Web App: swa-<app-name>-<env-suffix>
     │   ├── Static artifact: dist/
-    │   ├── Optional prebuilt TypeScript API artifact when `SWA_API_LOCATION` is set
-    │   │   └── Health and OpenAPI endpoints
+    │   ├── Prebuilt TypeScript API artifact
+    │   │   └── Health, Azure resource listing, and OpenAPI endpoints
     │   └── App settings seeded by GitHub workflows
     ├── Cosmos DB for NoSQL: cosmos-<app-name>-<env-suffix>
     │   └── SQL database: app
     ├── Log Analytics workspace: law-<app-name>-<env-suffix>
-    ├── Application Insights: appi-<app-name>-<env-suffix>
-    └── User-assigned managed identity: id-<app-name>-<env-suffix>
+    └── Application Insights: appi-<app-name>-<env-suffix>
 
 External prerequisite
 └── CIAM / Entra External ID tenant and app registration
@@ -53,7 +52,7 @@ Environment suffixes:
 .
 ├── .agents/skills/                 Agent skills committed with the template
 ├── .github/workflows/              CI, provision, seed, and deploy workflows
-├── api/                            Optional TypeScript Azure Functions boundary
+├── api/                            TypeScript Azure Functions boundary
 ├── css/                            Static styles copied by 11ty
 ├── docs/                           Supporting decisions and topic docs
 ├── html/                           11ty input directory
@@ -93,7 +92,7 @@ SWA locations:
 | SWA setting | Value | Meaning |
 | --- | --- | --- |
 | `app_location` | `dist` during deploy | Prebuilt static artifact |
-| `api_location` | empty by default | Set GitHub variable `SWA_API_LOCATION=api` when deploying the included TypeScript API |
+| `api_location` | `api` | Deploys the included TypeScript API |
 | `output_location` | empty during deploy | Build already happened in CI |
 
 Local SWA CLI config keeps `appLocation` as `.` because it runs the configured
@@ -213,19 +212,19 @@ after DNS records are verified.
 
 ## Azure Resources
 
-The Bicep deployment in `infrastructure/main.bicep` provisions the Azure
-resources below per environment.
+The provision workflow creates the environment resource group. The Bicep
+deployment in `infrastructure/main.bicep` provisions the Azure resources inside
+that group.
 
 | Resource | Naming pattern | Purpose |
 | --- | --- | --- |
 | Resource group | `rg-<app-name>-<env>` | Environment boundary |
-| Static Web App | `swa-<app-name>-<env>` | Hosts `dist/` and optional API |
+| Static Web App | `swa-<app-name>-<env>` | Hosts `dist/` and API |
 | Cosmos DB account | `cosmos-<app-name>-<env>` | NoSQL data store |
 | Cosmos SQL database | `app` by default | Application database |
 | Cosmos containers | parameterized | Application collections |
 | Log Analytics | `law-<app-name>-<env>` | Telemetry workspace |
 | Application Insights | `appi-<app-name>-<env>` | App telemetry |
-| Managed identity | `id-<app-name>-<env>` | Future Azure resource access |
 
 The CIAM tenant and app registration are external seed prerequisites. They are
 not created by Bicep because tenant/app-registration lifecycle is not a normal
@@ -259,7 +258,6 @@ Each environment stores the values used by workflows for that environment.
 | Variable | Purpose |
 | --- | --- |
 | `APP_NAME` | Overrides the repository-derived Azure name prefix |
-| `SWA_API_LOCATION` | Optional API source path. Leave unset for static-only projects; set to `api` when deploying the included TypeScript Azure Functions API and OpenAPI contract endpoint. |
 
 No Key Vault is used in this template. Seed secrets live in GitHub
 environments and are written into Azure Static Web App application settings by
@@ -273,7 +271,7 @@ secrets.
 
 | Workflow | Purpose |
 | --- | --- |
-| `ci.yml` | Runs parallel validation, lint, typecheck, build, HTML, test, audit, and secret-scan checks |
+| `ci.yml` | Runs parallel validation, Bicep compile, lint, typecheck, build, HTML, test, audit, and secret-scan checks |
 | `provision-azure.yml` | Creates or updates acceptance/production Azure resources |
 | `seed-azure-app-settings.yml` | Reapplies CIAM and Cosmos app settings |
 | `deploy-static-web-app.yml` | Builds once and deploys the prebuilt `dist/` artifact |
@@ -282,11 +280,11 @@ secrets.
 
 Manual dispatch:
 
-1. Choose `acceptance` or `production`.
+1. Choose `acceptance` or `production` and the Azure region, defaulting to `westeurope`.
 2. Workflow derives `app_name` from `APP_NAME` or repository name.
-3. Workflow creates the target resource group.
+3. Workflow creates the target resource group in the selected region.
 4. Workflow deploys `infrastructure/main.bicep` with the matching
-   `.bicepparam` file.
+   `.bicepparam` file and selected region.
 5. Workflow reads the Cosmos connection string from Azure.
 6. Workflow seeds CIAM and Cosmos values into SWA app settings.
 
@@ -299,6 +297,7 @@ Manual dispatch:
 3. Deploy job reads the target SWA deployment token from Azure.
 4. `Azure/static-web-apps-deploy@v1` uploads the prebuilt artifact with
    `skip_app_build: true` and `skip_api_build: true`.
+5. Deploy job health-checks `/`, `/api/health`, and `/api/resources`.
 
 The deploy platform must not rebuild the app. CI is the build authority.
 
@@ -319,6 +318,10 @@ The following app settings are written by Bicep or seed workflows:
 | `COSMOS_ACCOUNT_NAME` | Bicep | Derived resource name |
 | `COSMOS_ENDPOINT` | Bicep | Cosmos endpoint |
 | `COSMOS_DATABASE_NAME` | Bicep | Defaults to `app` |
+| `COSMOS_CONTAINER_NAMES` | Bicep | Comma-separated Cosmos container names; defaults to `items` |
+| `STATIC_WEB_APP_NAME` | Bicep | Derived Static Web App resource name |
+| `LOG_ANALYTICS_WORKSPACE_NAME` | Bicep | Derived Log Analytics workspace name |
+| `APPLICATION_INSIGHTS_NAME` | Bicep | Derived Application Insights resource name |
 | `COSMOS_CONNECTION_STRING` | Azure CLI during workflow | Secret read from Azure |
 | `APPLICATIONINSIGHTS_CONNECTION_STRING` | Bicep | App telemetry connection string |
 
@@ -361,10 +364,6 @@ Application telemetry is workspace-based:
 - Application Insights is linked to the workspace.
 - The Application Insights connection string is exposed to the app through SWA
   app settings.
-
-The template includes an optional failed-request scheduled-query alert. Set
-`alertEmail` in the environment parameter file to deploy an action group and
-alert. Leave it empty to skip alert resources.
 
 ---
 
@@ -415,8 +414,8 @@ Run these checks after provisioning or changing infrastructure.
    onboarding.
 4. Dashboards and SLO thresholds are not included until the instantiated
    project defines ownership and thresholds.
-5. The optional `api/` boundary includes TypeScript health and OpenAPI
-   endpoints, but it is not deployed unless `SWA_API_LOCATION=api` is set.
+5. The `api/` boundary includes TypeScript health, Azure resource listing, and
+   OpenAPI endpoints and is deployed with the static app.
 
 ---
 

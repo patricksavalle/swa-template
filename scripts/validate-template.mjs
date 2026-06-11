@@ -33,6 +33,7 @@ const requiredPaths = [
   "scripts/validate-swa-config.mjs",
   "scripts/configure-cloudflare-dns.mjs",
   ".github/actions/resolve-azure-names/action.yml",
+  ".github/actions/seed-azure-app-settings/action.yml",
   ".github/config/staticwebapp.schema.json",
   ".github/workflows/ci.yml",
   ".github/workflows/deploy-static-web-app.yml",
@@ -44,9 +45,11 @@ const requiredPaths = [
   "api/tsconfig.json",
   "api/health/function.json",
   "api/openapi/function.json",
+  "api/resources/function.json",
   "api/src/health/index.ts",
   "api/src/openapi/document.ts",
   "api/src/openapi/index.ts",
+  "api/src/resources/index.ts",
   "api/README.md",
   "css/README.md",
   "css/tailwind.css",
@@ -66,6 +69,7 @@ const requiredPaths = [
   "tests/app-model.test.mjs",
   "tests/health.test.mjs",
   "tests/openapi.test.mjs",
+  "tests/resources.test.mjs",
   "tests/README.md"
 ];
 

@@ -1,0 +1,87 @@
+name: Acceptance Smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: acceptance-smoke-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    name: Smoke Acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: acceptance
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Resolve Azure names
+        id: names
+        uses: ./.github/actions/resolve-azure-names
+        with:
+          environment: acceptance
+          app-name: ${{ vars.APP_NAME }}
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Resolve acceptance hostname
+        id: swa
+        shell: bash
+        run: |
+          default_hostname="$(az staticwebapp show \
+            --resource-group "${{ steps.names.outputs.resource_group }}" \
+            --name "${{ steps.names.outputs.swa_name }}" \
+            --query 'defaultHostname' \
+            --output tsv)"
+
+          if [ -z "$default_hostname" ]; then
+            echo "ERROR: Could not resolve acceptance SWA default hostname."
+            exit 1
+          fi
+
+          echo "default_hostname=$default_hostname" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke check
+        shell: bash
+        run: |
+          mkdir -p smoke-results
+          origin="https://${{ steps.swa.outputs.default_hostname }}"
+          report="smoke-results/acceptance-smoke-${GITHUB_SHA}.jsonl"
+
+          for path in "/" "/api/health" "/api/resources"; do
+            url="${origin}${path}"
+            status="$(curl --fail --silent --show-error --location --retry 5 --retry-delay 5 --retry-all-errors \
+              --output /dev/null \
+              --write-out "%{http_code}" \
+              "$url")"
+            printf '{"url":"%s","status":%s,"sha":"%s"}\n' "$url" "$status" "$GITHUB_SHA" >> "$report"
+            echo "Smoke check OK: $url"
+          done
+
+          {
+            echo "### Acceptance smoke"
+            echo ""
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Origin: ${origin}"
+            echo "- Paths: /, /api/health, /api/resources"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload smoke evidence
+        uses: actions/upload-artifact@v7
+        with:
+          name: acceptance-smoke-${{ github.sha }}
+          path: smoke-results/
+          if-no-files-found: error
+          retention-days: 30

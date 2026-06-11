@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+
 const apiBase = "https://api.cloudflare.com/client/v4";
 const args = parseArgs(process.argv.slice(2));
 const token = process.env.CLOUDFLARE_API_TOKEN;
@@ -13,6 +16,15 @@ const productionHostname = requiredArg(args, "production-host");
 const acceptanceHostname = requiredArg(args, "acceptance-host");
 const proxied = args.proxied === "true" || args.proxied === true;
 const dryRun = args["dry-run"] === "true" || args["dry-run"] === true;
+const evidenceFile = args["evidence-file"];
+
+if (evidenceFile === true) {
+  fail("--evidence-file requires a file path.");
+}
+
+if (evidenceFile && !dryRun) {
+  fail("--evidence-file is only supported with --dry-run.");
+}
 
 await verifyToken();
 const zone = await getZone(zoneName);
@@ -41,8 +53,26 @@ const records = [
   }
 ];
 
+const evidenceRecords = [];
 for (const record of records) {
-  await upsertRecord(zone.id, record);
+  evidenceRecords.push(await upsertRecord(zone.id, record));
+}
+
+if (evidenceFile) {
+  const evidencePath = resolve(evidenceFile);
+  await mkdir(dirname(evidencePath), { recursive: true });
+  await writeFile(
+    evidencePath,
+    `${JSON.stringify({
+      generatedAt: new Date().toISOString(),
+      zone: zoneName,
+      dryRun,
+      proxied,
+      records: evidenceRecords
+    }, null, 2)}\n`,
+    "utf8"
+  );
+  console.log(`Wrote DNS dry-run evidence to ${evidencePath}`);
 }
 
 async function verifyToken() {
@@ -77,7 +107,10 @@ async function upsertRecord(zoneId, record) {
   if (dryRun) {
     const action = existing.length > 0 ? "update" : "create";
     console.log(`[dry-run] ${action} ${record.type} ${record.name} -> ${record.content}`);
-    return;
+    return {
+      ...record,
+      action
+    };
   }
 
   if (existing.length > 0) {
@@ -86,7 +119,10 @@ async function upsertRecord(zoneId, record) {
       body: JSON.stringify(payload)
     });
     console.log(`Updated ${record.type} ${record.name} -> ${record.content}`);
-    return;
+    return {
+      ...record,
+      action: "update"
+    };
   }
 
   await cloudflareFetch(`/zones/${zoneId}/dns_records`, {
@@ -94,6 +130,10 @@ async function upsertRecord(zoneId, record) {
     body: JSON.stringify(payload)
   });
   console.log(`Created ${record.type} ${record.name} -> ${record.content}`);
+  return {
+    ...record,
+    action: "create"
+  };
 }
 
 async function cloudflareFetch(path, options = {}) {

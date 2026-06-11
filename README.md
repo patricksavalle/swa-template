@@ -227,10 +227,13 @@ Azure workflows included:
 
 - `Provision Azure` creates acceptance or production resources in the selected Azure region.
 - `Seed Azure App Settings` reapplies CIAM and Cosmos seed settings.
+- `Acceptance Smoke` verifies the deployed acceptance Static Web App and records smoke evidence for the commit.
 - `Deploy Static Web App` deploys the prebuilt `dist/` artifact.
 
 Azure resource names are derived from the final cloned repository name by
 default. Set the GitHub variable `APP_NAME` to override the derived name.
+Production deployment requires a successful `Acceptance Smoke` run for the
+same commit SHA.
 
 ## Production Readiness Checklist
 

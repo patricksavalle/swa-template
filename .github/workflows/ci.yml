@@ -74,14 +74,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup Node project
+        uses: ./.github/actions/setup-node-project
 
       - name: Validate
         run: npm run validate
@@ -95,14 +89,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup Node project
+        uses: ./.github/actions/setup-node-project
 
       - name: Lint
         run: npm run lint
@@ -116,14 +104,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup Node project
+        uses: ./.github/actions/setup-node-project
 
       - name: Typecheck
         run: npm run typecheck
@@ -137,14 +119,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup Node project
+        uses: ./.github/actions/setup-node-project
 
       - name: Build
         run: npm run build

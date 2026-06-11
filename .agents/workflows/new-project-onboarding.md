@@ -79,6 +79,13 @@ az login
 npx wrangler login
 ```
 
+Before cloud or repository setup, run the local readiness checks that do not
+depend on GitHub environments yet:
+
+```bash
+npm run verify:onboarding -- --skip-github-environments
+```
+
 ### 2. Clone, Rename, And Verify
 
 ```bash
@@ -122,6 +129,13 @@ gh variable set APP_NAME --body "<app-name>"
 
 Set secrets through `gh secret set` or the GitHub UI. Do not echo secret values
 to the terminal.
+
+Verify that the expected environments and secret names exist. This check does
+not read secret values:
+
+```bash
+npm run verify:github-envs -- --repo "<owner>/<new-repo>"
+```
 
 ### 4. Domain And Cloudflare
 
@@ -242,7 +256,16 @@ CLOUDFLARE_API_TOKEN="<short-lived-token>" npm run dns:cloudflare -- \
   --zone "<root-domain>" \
   --production-host "<production-swa-default-hostname>" \
   --acceptance-host "<acceptance-swa-default-hostname>" \
-  --dry-run
+  --dry-run \
+  --evidence-file ".onboarding/dns-dry-run.json"
+```
+
+Verify the local DNS evidence before applying records:
+
+```bash
+npm run verify:onboarding -- \
+  --repo "<owner>/<new-repo>" \
+  --dns-evidence ".onboarding/dns-dry-run.json"
 ```
 
 Apply DNS-only records:
@@ -266,8 +289,14 @@ Deploy acceptance:
 gh workflow run "Deploy Static Web App" --ref main -f environment=acceptance
 ```
 
-Verify acceptance manually or with browser automation. Deploy production only
-after acceptance is verified:
+Verify acceptance with the smoke workflow. Production deployment is blocked
+until `Acceptance Smoke` has succeeded for the same commit SHA:
+
+```bash
+gh workflow run "Acceptance Smoke" --ref main
+```
+
+Deploy production only after acceptance smoke succeeds:
 
 ```bash
 gh workflow run "Deploy Static Web App" --ref main -f environment=production

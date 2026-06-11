@@ -274,6 +274,7 @@ secrets.
 | `ci.yml` | Runs parallel validation, Bicep compile, lint, typecheck, build, HTML, test, audit, and secret-scan checks |
 | `provision-azure.yml` | Creates or updates acceptance/production Azure resources |
 | `seed-azure-app-settings.yml` | Reapplies CIAM and Cosmos app settings |
+| `acceptance-smoke.yml` | Health-checks the deployed acceptance Static Web App and uploads same-SHA smoke evidence |
 | `deploy-static-web-app.yml` | Builds once and deploys the prebuilt `dist/` artifact |
 
 ### Provisioning Flow
@@ -292,12 +293,14 @@ Manual dispatch:
 
 Manual dispatch:
 
-1. Deploy workflow builds the immutable `dist/` artifact for the selected commit.
-2. Deploy job logs into Azure with OIDC.
-3. Deploy job reads the target SWA deployment token from Azure.
-4. `Azure/static-web-apps-deploy@v1` uploads the prebuilt artifact with
+1. Production deploys first verify that `Acceptance Smoke` succeeded for the
+   same commit SHA.
+2. Deploy workflow builds the immutable `dist/` artifact for the selected commit.
+3. Deploy job logs into Azure with OIDC.
+4. Deploy job reads the target SWA deployment token from Azure.
+5. `Azure/static-web-apps-deploy@v1` uploads the prebuilt artifact with
    `skip_app_build: true` and `skip_api_build: true`.
-5. Deploy job health-checks `/`, `/api/health`, and `/api/resources`.
+6. Deploy job health-checks `/`, `/api/health`, and `/api/resources`.
 
 The deploy platform must not rebuild the app. CI is the build authority.
 

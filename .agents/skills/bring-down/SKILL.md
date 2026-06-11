@@ -40,6 +40,8 @@ description: >-
 > 6. **Search the current stack first.** Prefer framework-native features,
 >    approved libraries, platform products, and already-approved services
 >    before surveying the external market.
+> 7. **Name the landing capability.** A recommendation is incomplete unless it
+>    says where the functionality lands and who maintains that destination.
 
 > **Scope Boundary**
 >
@@ -48,6 +50,9 @@ description: >-
 > `bring-down` for those levels only when the move consumes an external or
 > platform capability, such as a framework feature, approved third-party
 > library, internal self-service platform product, or managed service.
+>
+> A move that keeps the same maintenance owner is not bring-down. Treat it as
+> architecture, refactoring, CI/CD reliability, push-out, or documentation work.
 
 ---
 
@@ -81,6 +86,11 @@ resource. It is not just a shared module in the repo.
 cloud service, or provider-owned capability where this codebase keeps only the
 integration.
 
+`L2 STD` counts only when the standard path is maintained outside the consuming
+code owner or is imposed by a framework, platform, or external specification.
+A repo-local template, helper, or manifest maintained by the same team is still
+`L4 CODE` for this skill.
+
 Lower is not automatically better. The target is the lowest level that removes
 real duplication while preserving legitimate variation.
 
@@ -110,12 +120,16 @@ for commodity sub-capabilities that can be outsourced safely.
 | Differentiating or feature-specific behavior | L4 CODE |
 | Repeated shape but variation still unclear | L4 CODE, or hand off for internal architecture work |
 | Stable commodity logic covered by an approved library/framework | L3 LIB |
-| Stable creation workflow covered by a standard/generator/policy | L2 STD |
+| Stable creation workflow covered by an externally owned standard/generator/policy | L2 STD |
 | Cross-team operational capability with policy needs | L1 PLP |
 | Non-differentiating commodity function | L0 SRVC |
 
 Use `functionality-complexity-tradeoff` before replacing code: if the duplicated
 functionality is unnecessary, delete it instead of bringing it down.
+
+If the target is "shared helper", "component", "template", "manifest", "script",
+or "pattern" in the same repo/team, exclude it from bring-down recommendations
+and list it under gaps or handoffs.
 
 ---
 
@@ -130,15 +144,20 @@ Search for:
 
 | Target | Signals |
 | ------ | ------- |
-| **Approved library/framework capability** | Package, framework API, SDK feature, plugin, or built-in behavior |
-| **Existing standard/pattern** | External standard, framework convention, generator, reference architecture, ADR, code owner convention |
-| **Existing platform product** | Internal service, reusable workflow, paved-road module, self-service control |
-| **Already-approved managed service** | Provider/service already used, security-approved, contracted, or supported |
-| **Framework-native capability** | Built-in feature that replaces local wrapper or custom code |
+| **Approved library/framework capability** | Exact package, import path, framework API, SDK feature, plugin, or built-in behavior |
+| **Existing standard/path** | Exact external standard, framework convention, platform-owned generator, reference architecture, or policy |
+| **Existing platform product** | Exact internal service, reusable workflow, paved-road module, self-service control, and owning team |
+| **Already-approved service** | Exact provider/service already used, security-approved, contracted, or supported |
+| **Framework-native capability** | Exact built-in feature that replaces local wrapper or custom code |
 
 Prefer stack-native and locally adopted options over new abstractions. A new
 external library, template, platform product, or service is justified only
 when the current stack has no suitable lower placement.
+
+Do not recommend a lower level with a vague landing like "patternize",
+"componentize", "extract", "shared module", or "manifest". Name the actual
+package, API, standard, platform product, or service. If none is known, report
+the candidate as "no bring-down landing found".
 
 ---
 
@@ -182,11 +201,15 @@ capabilities, pricing, SLAs, regions, and compliance posture are time-sensitive.
 6. **Assign current level.** Use the scale with evidence.
 7. **Choose target level.** Pick the lowest responsible level by maintenance
    burden, commodity fit, risk, and variation.
-8. **Compute distance.** Current level - target level.
-9. **Choose one move.** Move down one level unless the intermediate level is
+8. **Name landing capability.** Record the exact package/API, standard,
+   platform product, or service and its maintenance owner.
+9. **Reject same-owner moves.** If the target owner is the same codebase/team,
+   remove it from bring-down recommendations and hand it off.
+10. **Compute distance.** Current level - target level.
+11. **Choose one move.** Move down one level unless the intermediate level is
    already satisfied. If the move is purely internal componentization or
    patternization, hand off to architecture skills.
-10. **Prove and retire.** Migrate at least one real consumer and remove the old
+12. **Prove and retire.** Migrate at least one real consumer and remove the old
    duplicate path.
 
 Prioritize by:
@@ -205,12 +228,15 @@ If the improvement is mainly about human execution rather than code shape, use
 | Move | Use when | Action |
 | ---- | -------- | ------ |
 | **L4 CODE to L3 LIB** | Approved library/framework capability fits | Replace bespoke code with that capability |
-| **L3 LIB to L2 STD** | New instances repeat setup and a standard path exists | Adopt generator, policy, framework convention, or reference architecture |
+| **L3 LIB to L2 STD** | New instances repeat setup and an externally owned standard path exists | Adopt generator, policy, framework convention, or reference architecture |
 | **L2 STD to L1 PLP** | Teams need a governed capability | Use or build a platform product with validation, observability, and support |
 | **L1 PLP to L0 SRVC** | Capability is commodity | Replace with external service or managed commodity |
 
 Each move must include migration and deletion criteria. A new abstraction with
 all old copies still alive is inventory, not simplification.
+
+Do not emit `L4 CODE to L4 CODE` moves. Do not emit `L4 CODE to L2 STD` unless
+the named standard path is maintained outside the consuming code owner.
 
 ---
 
@@ -237,6 +263,8 @@ graph.
 | Shared abstraction hiding real variation | Split stable core from explicit extension points |
 | Building a new shared thing before looking locally | Search the current stack for existing lower placements first |
 | Triggering bring-down for repo-local componentization | Use architecture skills unless the target is an external/library/platform capability |
+| Recommendation has no landing capability | Name the exact package/API, standard, platform product, or service before recommending it |
+| Target has the same maintenance owner | Exclude it from bring-down and hand off to the relevant skill |
 | Platform product without adoption | Measure consumers, escape hatches, and support load |
 | Template with no enforcement | Add lint, generator checks, or review gate where feasible |
 | Managed service for differentiating logic | Keep local or componentized where domain value lives |
@@ -251,21 +279,31 @@ graph.
 
 Emit results in this shape:
 
+Only put valid owner-changing bring-down moves in `Candidates` and
+`Priorities`. Put same-owner refactors, repo-local patternization, and vague
+ideas without a landing capability in `Handoffs` or `Gaps`. If there are no
+valid moves, say `Decision: No bring-down recommendation; hand off candidates`.
+
 ```
 Scope:          <repos/modules/services/teams/workflows>
 Mode:           Assessment | Improvement | Roadmap
+Decision:       <valid bring-down move, or no bring-down recommendation>
 Summary:        <2-4 sentences: main duplication, best bring-down move, key risk>
 
 Candidates:
-| Candidate | Current | Target | Distance | Existing lower placement | Repetition evidence | Variation | Service candidates | Confidence | Next action |
-| --------- | ------- | ------ | -------- | ------------------------ | ------------------- | --------- | ------------------ | ---------- | ----------- |
+| Candidate | Current | Current owner | Target | Landing capability | Target owner | Distance | Repetition evidence | Variation | Confidence | Next action |
+| --------- | ------- | ------------- | ------ | ------------------ | ------------ | -------- | ------------------- | --------- | ---------- | ----------- |
 
 Priorities:
-| Rank | Candidate | Why now | Bring-down move | Migration proof | Duplicate to retire |
-| ---- | --------- | ------- | --------------- | --------------- | ------------------- |
+| Rank | Candidate | Why now | Bring-down move | Landing capability | Migration proof | Custom code to retire |
+| ---- | --------- | ------- | --------------- | ------------------ | --------------- | --------------------- |
 
 Gaps:
 <Missing evidence, unclear ownership, unproven repetition, variation risks, or excluded candidates>
+
+Handoffs:
+| Candidate | Reason excluded | Better skill |
+| --------- | --------------- | ------------ |
 
 Service comparison:
 | Service option | Fit | Gaps | Lock-in | Migration cost | Rollback path |

@@ -5,6 +5,9 @@
 > You get an empty but complete Azure Static Web App starter: 11ty pages,
 > Tailwind CSS, browser TypeScript, TypeScript API, validation scripts, CI,
 > deploy workflows, Bicep infrastructure, and agent-ready delivery guidance.
+> The project includes the ALCHEMY AI skills from
+> [the upstream skills repository](https://github.com/l-gevity/l-gevity-skills)
+> as its project-local agent baseline.
 > After onboarding and deployment, you have acceptance and production Azure
 > resources provisioned, app settings seeded, CI/CD wired through GitHub OIDC,
 > and a prebuilt static site plus API deployed to Azure Static Web Apps on the
@@ -120,7 +123,8 @@ npx wrangler login
 
 ## Directory Roles
 
-- `.agents/skills/` holds the ready-to-use generic agent skills.
+- `.agents/skills/` holds the ready-to-use ALCHEMY AI skills from
+  [the upstream skills repository](https://github.com/l-gevity/l-gevity-skills).
 - `.agents/workflows/` holds agent-operated setup and delivery workflows.
 - `html/` holds 11ty pages, includes, layouts, and data.
 - `css/` holds Tailwind CSS input, compiled stylesheet output, and static styling assets.

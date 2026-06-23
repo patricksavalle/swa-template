@@ -299,7 +299,7 @@ Manual dispatch:
 3. Deploy job logs into Azure with OIDC.
 4. Deploy job reads the target SWA deployment token from Azure.
 5. `Azure/static-web-apps-deploy@v1` uploads the prebuilt artifact with
-   `skip_app_build: true` and `skip_api_build: true`.
+   `skip_app_build: true`.
 6. Deploy job health-checks `/`, `/api/health`, and `/api/resources`.
 
 The deploy platform must not rebuild the app. CI is the build authority.

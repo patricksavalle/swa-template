@@ -101,6 +101,7 @@ const expectedSkills = [
   "geometric-architecture",
   "issue-refinement",
   "observability-protocol",
+  "owasp-security",
   "release-management",
   "request-to-response-pipeline",
   "rest-api-review",

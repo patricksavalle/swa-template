@@ -3,10 +3,12 @@ name: observability-protocol
 description:
     Conventions for structured logging, request correlation, and metric
     emission in Azure Functions APIs and browser UI code paths. Pins log shape,
-    span/attribute names, PII rules, and OpenTelemetry wiring so a future
-    analytics swap is mechanical. Use when adding or auditing log lines in
-    `api/`, wiring a new Function entry point, diagnosing a slow request, or
-    introducing a dependency that needs tracing.
+    span/attribute names, PII-safe telemetry rules, secret-safe logging
+    guardrails, and OpenTelemetry wiring so a future analytics swap is
+    mechanical. Use when adding or auditing log lines in `api/`, wiring a new
+    Function entry point, diagnosing a slow request, introducing a dependency
+    that needs tracing, or reviewing whether telemetry may expose personal,
+    customer, user-supplied, regulated, or secret material.
 ---
 
 # Observability Protocol
@@ -32,6 +34,9 @@ if the project later changes telemetry backends.
 > 4. **One field name per concept across the whole repo.** See section 3.
 > 5. **Use a flush-safe span processor in Functions.** Serverless runtimes may
 >    freeze before a batch processor flushes.
+> 6. **User payloads never enter telemetry.** Log counts, outcomes, operation
+>    names, and trace ids, not request bodies, source records, or generated
+>    document contents.
 
 ---
 
@@ -84,10 +89,20 @@ One name per concept. New fields MUST extend this table.
 Do NOT log:
 
 - Raw email addresses, names, postal addresses, phone numbers, or account IDs.
+- Customer records, source-system row identifiers, uploaded files, generated
+  document contents, or domain-specific fields that may identify a person or
+  disclose confidential business data.
 - Promo codes, HMAC tokens, JWTs, session cookies, API keys, or authorization
   headers.
 - Request bodies that may contain personal, financial, regulated, or
   user-supplied sensitive data.
+
+Prefer aggregate facts such as row counts, rejected-counts, route templates,
+operation names, dependency names, duration, and controlled outcome values. If a
+log line needs identity correlation, use `userHash` from the approved
+pseudonymization helper once it exists; do not invent a hash at a call site.
+Executable guardrails live in `scripts/validate-privacy-guardrails.mjs` and run
+through `npm run validate`.
 
 ---
 

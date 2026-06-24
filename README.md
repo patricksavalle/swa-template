@@ -133,7 +133,7 @@ npx wrangler login
 - `ts/` holds TypeScript source in infrastructure, business logic, and user
   interface tiers.
 - `tests/` holds cross-boundary tests that do not belong to one tier.
-- `docs/` holds supporting architecture, linting, seed-secret, and skill docs.
+- `docs/` holds supporting architecture, linting, privacy, seed-secret, and skill docs.
 - `scripts/` holds validation, build, release, and local automation.
 
 ## Start Here

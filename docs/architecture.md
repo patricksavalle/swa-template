@@ -11,6 +11,8 @@ This template separates the project into a small number of durable boundaries:
 - `ts/` for TypeScript source.
 - `infrastructure/` for Bicep templates and environment parameters.
 - `docs/decisions/` for accepted architecture decisions.
+- `docs/privacy/` for privacy inventory, DPIA, retention, subprocessor, and
+  rights scaffolding.
 - `INFRASTRUCTURE.md` for deployed platform, environment, naming, and secrets
   contracts.
 - `tests/` for cross-boundary verification.

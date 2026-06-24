@@ -9,9 +9,10 @@
     "node": ">=20 <21"
   },
   "scripts": {
-    "validate": "node scripts/validate-template.mjs && npm run validate:swa-config && npm run validate:api-contract",
+    "validate": "node scripts/validate-template.mjs && npm run validate:swa-config && npm run validate:api-contract && npm run validate:privacy-guardrails",
     "validate:swa-config": "node scripts/validate-swa-config.mjs staticwebapp.config.json",
     "validate:api-contract": "node scripts/validate-api-contract.mjs",
+    "validate:privacy-guardrails": "node scripts/validate-privacy-guardrails.mjs",
     "verify:onboarding": "node scripts/verify-onboarding.mjs",
     "verify:github-envs": "node scripts/verify-github-environments.mjs",
     "dns:cloudflare": "node scripts/configure-cloudflare-dns.mjs",

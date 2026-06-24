@@ -28,6 +28,7 @@ does not fit.
 | `gdpr-dsgvo-expert` | GDPR and DSGVO privacy review guidance. |
 | `issue-refinement` | Convert raw issues into implementation-ready specs. |
 | `observability-protocol` | Structured logging, tracing, metrics, and PII-safe telemetry. |
+| `owasp-security` | OWASP Top 10 secure coding and security review guidance. |
 | `release-management` | Production release branch, changelog, version, and PR protocol. |
 | `request-to-response-pipeline` | Trace changes across browser, API, auth, and storage boundaries. |
 | `rest-api-review` | REST API contract and endpoint review guidance. |

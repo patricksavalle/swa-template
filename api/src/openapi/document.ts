@@ -147,7 +147,7 @@ export const openApiDocument = {
       get: {
         operationId: "listAzureResources",
         summary: "List Azure resources",
-        description: "Returns the Azure resources and external identity configuration used by the app.",
+        description: "Returns status-only Azure resource readiness metadata without raw resource names, tenant identifiers, endpoints, connection strings, or secrets.",
         tags: ["system"],
         responses: {
           "200": {

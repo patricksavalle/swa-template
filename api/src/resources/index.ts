@@ -25,43 +25,51 @@ function readListSetting(name: string): readonly string[] {
     .filter((value) => value.length > 0);
 }
 
+function readConfiguredStatus(name: string): string {
+  return readSetting(name).length > 0 ? "configured" : "missing";
+}
+
 export async function resources(context: InvocationContext, request: HttpRequest): Promise<HttpResponse> {
   const startedAt = Date.now();
+  const cosmosContainerNames = readListSetting("COSMOS_CONTAINER_NAMES");
   const response: AzureResourcesResponse = {
     environment: readSetting("APP_ENV", "local"),
     resources: [
       {
         kind: "Azure Static Web App",
-        name: readSetting("STATIC_WEB_APP_NAME"),
+        name: readConfiguredStatus("STATIC_WEB_APP_NAME"),
         settings: {
-          projectName: readSetting("PROJECT_NAME")
+          projectName: readSetting("PROJECT_NAME"),
+          environment: readSetting("APP_ENV", "local")
         }
       },
       {
         kind: "Azure Cosmos DB for NoSQL",
-        name: readSetting("COSMOS_ACCOUNT_NAME"),
+        name: readConfiguredStatus("COSMOS_ACCOUNT_NAME"),
         settings: {
-          endpoint: readSetting("COSMOS_ENDPOINT"),
-          databaseName: readSetting("COSMOS_DATABASE_NAME"),
-          containerNames: readListSetting("COSMOS_CONTAINER_NAMES")
+          endpointStatus: readConfiguredStatus("COSMOS_ENDPOINT"),
+          databaseStatus: readConfiguredStatus("COSMOS_DATABASE_NAME"),
+          containerCount: String(cosmosContainerNames.length)
         }
       },
       {
         kind: "Log Analytics workspace",
-        name: readSetting("LOG_ANALYTICS_WORKSPACE_NAME"),
+        name: readConfiguredStatus("LOG_ANALYTICS_WORKSPACE_NAME"),
         settings: {}
       },
       {
         kind: "Application Insights",
-        name: readSetting("APPLICATION_INSIGHTS_NAME"),
-        settings: {}
+        name: readConfiguredStatus("APPLICATION_INSIGHTS_NAME"),
+        settings: {
+          connectionStatus: readConfiguredStatus("APPLICATIONINSIGHTS_CONNECTION_STRING")
+        }
       },
       {
         kind: "CIAM / Entra External ID app registration",
-        name: readSetting("CIAM_CLIENT_ID"),
+        name: readConfiguredStatus("CIAM_CLIENT_ID"),
         settings: {
-          tenantId: readSetting("CIAM_TENANT_ID"),
-          tenantName: readSetting("CIAM_TENANT_NAME")
+          clientStatus: readConfiguredStatus("CIAM_CLIENT_ID"),
+          tenantStatus: readConfiguredStatus("CIAM_TENANT_ID")
         }
       }
     ]

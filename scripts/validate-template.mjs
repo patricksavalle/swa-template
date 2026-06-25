@@ -86,6 +86,7 @@ const requiredPaths = [
 
 const expectedSkills = [
   "accessibility-audit",
+  "alchemy",
   "architecture-as-code",
   "architecture-as-code-javascript",
   "architecture-as-code-python",
@@ -106,6 +107,7 @@ const expectedSkills = [
   "rest-api-review",
   "skill-creation",
   "structural-simplification",
+  "push-out",
   "technical-design",
   "swa-authenticate",
   "whitepapers",

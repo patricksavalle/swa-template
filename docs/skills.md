@@ -9,6 +9,7 @@ does not fit.
 
 | Skill | Purpose |
 | --- | --- |
+| `alchemy` | Orchestrates multi-gate design, refactor, architecture, and DevOps reviews. |
 | `architecture-guidelines` | First-principles architecture discipline. |
 | `geometric-architecture` | Component placement and dependency graph constraints. |
 | `structural-simplification` | Complexity comparison for refactors and structure changes. |
@@ -20,6 +21,7 @@ does not fit.
 | `functionality-complexity-tradeoff` | Necessity and worth gate for features and existing code. |
 | `ci-cd-reliability-architecture` | CI/CD reliability rules for idempotent, safe deployments. |
 | `system-optimization` | Constraint-driven system and workflow optimization. |
+| `push-out` | Move recurring operational work into durable procedures, standards, platforms, and feedback loops. |
 | `continuous-improvement` | Promote recurring lessons into tests, checks, or skill edits. |
 | `design-and-refactor` | Orchestrates the design/refactor decision sequence. |
 | `accessibility-audit` | WCAG 2.2 AA audit gates for components, pages, and releases. |

@@ -30,7 +30,7 @@
   "devDependencies": {
     "@11ty/eleventy": "^3.1.6",
     "@eslint/js": "^10.0.1",
-    "@tailwindcss/cli": "^4.3.1",
+    "@tailwindcss/cli": "^4.3.2",
     "@types/node": "^26.0.0",
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
